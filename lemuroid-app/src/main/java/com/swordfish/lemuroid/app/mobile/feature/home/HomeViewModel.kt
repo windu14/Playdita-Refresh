@@ -74,6 +74,10 @@ class HomeViewModel(
         StorageFrameworkPickerLauncher.pickFolder(context)
     }
 
+    fun refreshLibrary(context: Context) {
+        com.swordfish.lemuroid.app.shared.library.LibraryIndexScheduler.scheduleLibrarySync(context.applicationContext)
+    }
+
     fun updatePermissions(context: Context) {
         notificationsPermissionEnabledState.value = isNotificationsPermissionGranted(context)
         microphonePermissionEnabledState.value = isMicrophonePermissionGranted(context)

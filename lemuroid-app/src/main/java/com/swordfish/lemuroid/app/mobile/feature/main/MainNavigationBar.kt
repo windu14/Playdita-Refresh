@@ -48,6 +48,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 
+import androidx.compose.ui.graphics.luminance
+
 @Composable
 fun MainNavigationBar(
     currentRoute: MainRoute?,
@@ -69,29 +71,30 @@ fun MainNavigationBar(
                 .padding(horizontal = 22.dp, vertical = 10.dp),
             contentAlignment = Alignment.Center,
         ) {
-            val isDark = isSystemInDarkTheme()
+            // Check theme luminance directly from active MaterialTheme
+            val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
             val barShape = RoundedCornerShape(32.dp)
 
             // Solid container color (100% opaque, truly solid)
             val solidContainerColor = if (isDark) {
-                Color(0xFF1A1B20)
+                Color(0xFF1E2024)
             } else {
                 Color(0xFFFFFFFF)
             }
 
             // Smooth inward depth effect bevel border
             val topHighlight = if (isDark) Color.White.copy(alpha = 0.14f) else Color.White.copy(alpha = 0.90f)
-            val bottomShadow = if (isDark) Color.Black.copy(alpha = 0.50f) else Color.Black.copy(alpha = 0.16f)
+            val bottomShadow = if (isDark) Color.Black.copy(alpha = 0.45f) else Color.Black.copy(alpha = 0.10f)
 
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(66.dp)
                     .shadow(
-                        elevation = 16.dp,
+                        elevation = 14.dp,
                         shape = barShape,
-                        spotColor = if (isDark) Color.Black.copy(alpha = 0.65f) else Color.Black.copy(alpha = 0.22f),
-                        ambientColor = if (isDark) Color.Black.copy(alpha = 0.35f) else Color.Black.copy(alpha = 0.12f),
+                        spotColor = if (isDark) Color.Black.copy(alpha = 0.60f) else Color.Black.copy(alpha = 0.14f),
+                        ambientColor = if (isDark) Color.Black.copy(alpha = 0.30f) else Color.Black.copy(alpha = 0.08f),
                     ),
                 shape = barShape,
                 color = solidContainerColor,
@@ -109,9 +112,9 @@ fun MainNavigationBar(
                         .background(
                             brush = Brush.verticalGradient(
                                 colors = listOf(
-                                    (if (isDark) Color.White else Color.Black).copy(alpha = 0.03f),
+                                    (if (isDark) Color.White else Color.Transparent).copy(alpha = 0.03f),
                                     Color.Transparent,
-                                    (if (isDark) Color.Black else Color.Black).copy(alpha = 0.04f),
+                                    (if (isDark) Color.Black else Color.Black).copy(alpha = if (isDark) 0.04f else 0.02f),
                                 ),
                             ),
                         ),

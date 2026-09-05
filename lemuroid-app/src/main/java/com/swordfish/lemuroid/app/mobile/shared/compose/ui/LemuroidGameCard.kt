@@ -1,7 +1,9 @@
 package com.swordfish.lemuroid.app.mobile.shared.compose.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -25,6 +27,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.swordfish.lemuroid.lib.library.db.entity.Game
 
@@ -39,7 +43,13 @@ fun LemuroidGameCard(
     val cardShape = RoundedCornerShape(20.dp)
 
     ElevatedCard(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+                shape = cardShape,
+            ),
         shape = cardShape,
         elevation = CardDefaults.elevatedCardElevation(
             defaultElevation = 2.dp,
@@ -48,7 +58,7 @@ fun LemuroidGameCard(
             hoveredElevation = 4.dp,
         ),
         colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.75f),
+            containerColor = MaterialTheme.colorScheme.surface,
         ),
     ) {
         Column(
@@ -66,11 +76,27 @@ fun LemuroidGameCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(1.0f)
-                    .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)),
+                    .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+                    .background(Color(0xFF141518)),
             ) {
                 LemuroidGameImage(
                     modifier = Modifier.fillMaxSize(),
                     game = game,
+                )
+
+                // Subtle bottom gradient on the image to blend smoothly into card body
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    Color.Transparent,
+                                    Color.Black.copy(alpha = 0.18f),
+                                ),
+                            ),
+                        ),
                 )
 
                 if (game.isFavorite) {
@@ -78,7 +104,7 @@ fun LemuroidGameCard(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .padding(8.dp)
-                            .size(24.dp)
+                            .size(26.dp)
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.92f)),
                         contentAlignment = Alignment.Center,

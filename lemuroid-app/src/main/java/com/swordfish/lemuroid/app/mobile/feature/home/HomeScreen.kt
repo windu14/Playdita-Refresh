@@ -31,11 +31,13 @@ import androidx.compose.material.icons.outlined.SportsEsports
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
@@ -96,26 +98,28 @@ fun HomeScreen(
     HomeScreen(
         modifier,
         state.value,
-        onGameClick,
-        onGameLongClick,
-        onOpenCoreSelection,
-        {
+        onRefresh = { viewModel.refreshLibrary(context) },
+        onGameClicked = onGameClick,
+        onGameLongClick = onGameLongClick,
+        onOpenCoreSelection = onOpenCoreSelection,
+        onEnableNotificationsClicked = {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
                 return@HomeScreen
             }
 
             permissionsLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         },
-        { permissionsLauncher.launch(Manifest.permission.RECORD_AUDIO) },
-        { viewModel.changeLocalStorageFolder(context) },
+        onEnableMicrophoneClicked = { permissionsLauncher.launch(Manifest.permission.RECORD_AUDIO) },
+        onSetDirectoryClicked = { viewModel.changeLocalStorageFolder(context) },
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeScreen(
     modifier: Modifier = Modifier,
     state: HomeViewModel.UIState,
+    onRefresh: () -> Unit,
     onGameClicked: (Game) -> Unit,
     onGameLongClick: (Game) -> Unit,
     onOpenCoreSelection: () -> Unit,
@@ -123,28 +127,33 @@ private fun HomeScreen(
     onEnableMicrophoneClicked: () -> Unit,
     onSetDirectoryClicked: () -> Unit,
 ) {
-    Column(
-        modifier =
-            modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(top = 8.dp, bottom = 90.dp),
-        verticalArrangement = Arrangement.spacedBy(22.dp),
+    PullToRefreshBox(
+        isRefreshing = state.indexInProgress,
+        onRefresh = onRefresh,
+        modifier = modifier.fillMaxSize(),
     ) {
-        // Indexing Wavy Snake Loader
-        AnimatedVisibility(state.indexInProgress) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                WavyLinearProgressIndicator(
-                    color = MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
-                )
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(top = 8.dp, bottom = 90.dp),
+            verticalArrangement = Arrangement.spacedBy(22.dp),
+        ) {
+            // Indexing Wavy Snake Loader
+            AnimatedVisibility(state.indexInProgress) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    WavyLinearProgressIndicator(
+                        color = MaterialTheme.colorScheme.primary,
+                        trackColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
+                    )
+                }
             }
-        }
 
         // Notification / Permission cards
         AnimatedVisibility(state.showNoNotificationPermissionCard) {
@@ -200,6 +209,7 @@ private fun HomeScreen(
                 onGameClicked = onGameClicked,
                 onGameLongClick = onGameLongClick,
             )
+        }
         }
     }
 }
@@ -266,34 +276,29 @@ private fun HomeRecentCarousel(
             }
         }
 
-        // Stacked Overlapping Card Carousel
+        // Spacious Card Carousel with clean spacing and subtle focus scale
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(268.dp),
-            contentPadding = PaddingValues(horizontal = 76.dp),
-            pageSpacing = (-22).dp,
+            contentPadding = PaddingValues(horizontal = 60.dp),
+            pageSpacing = 16.dp,
         ) { page ->
             val game = games[page]
             val pageOffset = ((pagerState.currentPage - page) + pagerState.currentPageOffsetFraction)
             val absOffset = pageOffset.absoluteValue.coerceIn(0f, 2f)
 
-            val scale = lerp(0.88f, 1f, 1f - (absOffset * 0.35f).coerceIn(0f, 1f))
-            val alpha = lerp(0.70f, 1f, 1f - (absOffset * 0.30f).coerceIn(0f, 1f))
-            val rotationZ = (pageOffset * -2.5f).coerceIn(-5f, 5f)
-            val translationY = (absOffset * 4f)
+            val scale = lerp(0.92f, 1f, 1f - (absOffset * 0.20f).coerceIn(0f, 1f))
+            val alpha = lerp(0.85f, 1f, 1f - (absOffset * 0.20f).coerceIn(0f, 1f))
 
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .zIndex(10f - absOffset)
                     .graphicsLayer {
                         this.scaleX = scale
                         this.scaleY = scale
                         this.alpha = alpha
-                        this.rotationZ = rotationZ
-                        this.translationY = translationY.dp.toPx()
                     },
                 contentAlignment = Alignment.Center,
             ) {
