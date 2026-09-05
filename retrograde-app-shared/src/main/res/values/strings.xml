@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="local_storage">Penyimpanan Lokal</string>
+
+    <string name="controller_arcade_4">Default (4 tombol)</string>
+    <string name="controller_arcade_6">Default (6 tombol)</string>
+
+    <string name="controller_genesis_3">Default (3 tombol)</string>
+    <string name="controller_genesis_6">Default (6 tombol)</string>
+
+    <string name="controller_default">Default</string>
+    <string name="controller_dualshock">DualShock</string>
+    <string name="controller_standard">Standar</string>
+    <string name="controller_landscape">Lanskap</string>
+    <string name="controller_portrait">Potret</string>
+
+    <string name="controller_dos_auto">Otomatis</string>
+    <string name="controller_dos_mouse_left">Mouse dengan Stik Kiri</string>
+    <string name="controller_dos_mouse_right">Mouse dengan Stik Kanan</string>
+
+    <!-- Core settings titles -->
+    <string name="setting_stella_filter">Efek TV</string>
+    <string name="setting_stella_crop_hoverscan">Pangkas overscan horizontal</string>
+    <string name="setting_fceumm_overscan_h">Pangkas overscan horizontal</string>
+    <string name="setting_fceumm_overscan_v">Pangkas overscan vertikal</string>
+    <string name="setting_fceumm_nospritelimit">Tanpa batas sprite</string>
+    <string name="setting_genesis_plus_gx_blargg_ntsc_filter">Efek TV</string>
+    <string name="setting_genesis_plus_gx_overscan">Bingkai</string>
+    <string name="setting_genesis_plus_gx_lcd_filter">Efek bayangan LCD</string>
+    <string name="setting_genesis_plus_gx_no_sprite_limit">Tanpa batas sprite</string>
+    <string name="setting_gambatte_gb_colorization">Pewarnaan</string>
+    <string name="setting_gambatte_gb_internal_palette">Palet internal</string>
+    <string name="setting_gambatte_mix_frames">Efek bayangan LCD</string>
+    <string name="setting_gambatte_dark_filter_level">Gelapkan layar</string>
+    <string name="setting_gambatte_gbc_color_correction">Koreksi warna</string>
+    <string name="setting_mgba_solar_sensor_level">Tingkat sensor cahaya surya</string>
+    <string name="setting_mgba_interframe_blending">Efek bayangan LCD</string>
+    <string name="setting_mgba_frameskip">Lewati bingkai (Frameskip)</string>
+    <string name="setting_mgba_color_correction">Koreksi warna</string>
+    <string name="setting_mupen64plus_43screensize">Ukuran layar 4:3</string>
+    <string name="setting_mupen64plus_cpucore">Dynamic recompiler</string>
+    <string name="setting_mupen64plus_BilinearMode">Mode bilinear</string>
+    <string name="setting_mupen64plus_pak1">Player 1 Pak</string>
+    <string name="setting_mupen64plus_pak2">Player 2 Pak</string>
+    <string name="setting_pcsx_rearmed_frameskip">Frameskip</string>
+    <string name="setting_pcsx_rearmed_drc">Dynamic recompiler</string>
+    <string name="setting_ppsspp_auto_frameskip">Auto frameskip</string>
+    <string name="setting_ppsspp_frameskip">Frameskip</string>
+    <string name="setting_ppsspp_cpu_core">Dynamic recompiler</string>
+    <string name="setting_ppsspp_internal_resolution">Resolusi internal</string>
+    <string name="setting_ppsspp_texture_scaling_level">Tingkat penskalaan tekstur</string>
+    <string name="setting_ppsspp_texture_scaling_type">Tipe penskalaan tekstur</string>
+    <string name="setting_ppsspp_texture_filtering">Penyaringan tekstur</string>
+    <string name="setting_fbneo_frameskip">Frameskip</string>
+    <string name="setting_fbneo_cpu_speed_adjust">Kecepatan CPU</string>
+    <string name="setting_desmume_screens_layout">Tata letak layar</string>
+    <string name="setting_desmume_frameskip">Frameskip</string>
+    <string name="setting_melonds_screen_layout">Tata letak layar</string>
+    <string name="setting_melonds_threaded_renderer">Threaded renderer</string>
+    <string name="setting_melonds_jit_enable">Dynamic recompiler</string>
+    <string name="setting_melonds_mic_input">Mode mikrofon</string>
+    <string name="setting_wswan_rotate_display">Orientasi</string>
+    <string name="setting_wswan_mono_palette">Pewarnaan</string>
+    <string name="setting_handy_rot">Rotasi tampilan</string>
+    <string name="setting_citra_layout_option">Tata letak layar</string>
+    <string name="setting_citra_resolution_factor">Penskalaan resolusi</string>
+    <string name="setting_citra_use_acc_mul">Accurate shaders multiplication</string>
+    <string name="setting_citra_use_acc_geo_shaders">Accurate geometry shaders</string>
+
+    <!-- Core settings values -->
+    <string name="value_gambatte_mix_frames_disabled">Nonaktif</string>
+    <string name="value_gambatte_mix_frames_mix">Sederhana</string>
+    <string name="value_gambatte_mix_frames_lcd_ghosting">Bayangan LCD (Akurat)</string>
+    <string name="value_gambatte_mix_frames_lcd_ghosting_fast">Bayangan LCD (Cepat)</string>
+    <string name="value_gambatte_gbc_color_correction_always">Aktif</string>
+    <string name="value_gambatte_gbc_color_correction_disabled">Nonaktif</string>
+
+    <string name="value_mgba_interframe_blending_off">Nonaktif</string>
+    <string name="value_mgba_interframe_blending_mix">Sederhana</string>
+    <string name="value_mgba_interframe_blending_lcd_ghosting">Bayangan LCD (Akurat)</string>
+    <string name="value_mgba_interframe_blending_lcd_ghosting_fast">Bayangan LCD (Cepat)</string>
+
+    <string name="value_mgba_frameskip_disabled">Nonaktif</string>
+    <string name="value_mgba_frameskip_auto">Otomatis</string>
+
+    <string name="value_mgba_color_correction_off">Nonaktif</string>
+    <string name="value_mgba_color_correction_gba">Aktif</string>
+
+    <string name="value_stella_filter_disabled">Nonaktif</string>
+    <string name="value_stella_filter_composite">Komposit</string>
+    <string name="value_stella_filter_svideo">S-Video</string>
+    <string name="value_stella_filter_rgb">RGB</string>
+    <string name="value_stella_filter_badlyadjusted">Penyesuaian manual</string>
+
+    <string name="value_genesis_plus_gx_blargg_ntsc_filter_disabled">Nonaktif</string>
+    <string name="value_genesis_plus_gx_blargg_ntsc_filter_monochrome">Monokrom</string>
+    <string name="value_genesis_plus_gx_blargg_ntsc_filter_composite">Komposit</string>
+    <string name="value_genesis_plus_gx_blargg_ntsc_filter_svideo">S-Video</string>
+    <string name="value_genesis_plus_gx_blargg_ntsc_filter_rgb">RGB</string>
+
+    <string name="value_genesis_plus_gx_overscan_disabled">Nonaktif</string>
+    <string name="value_genesis_plus_gx_overscan_topbottom">Atas/Bawah</string>
+    <string name="value_genesis_plus_gx_overscan_leftright">Kiri/Kanan</string>
+    <string name="value_genesis_plus_gx_overscan_full">Penuh</string>
+
+    <string name="value_mupen64plus_cpucore_dynamicrecompiler">Dynamic recompiler</string>
+    <string name="value_mupen64plus_cpucore_pureinterpreter">Pure interpreter</string>
+    <string name="value_mupen64plus_cpucore_cachedinterpreter">Cached interpreter</string>
+
+    <string name="value_mupen64plus_bilinearmode_standard">Standar</string>
+    <string name="value_mupen64plus_bilinearmode_3point">3-Titik</string>
+
+    <string name="value_mupen64plus_mupen64plus_pak1_memory">Memori</string>
+    <string name="value_mupen64plus_mupen64plus_pak1_rumble">Getaran</string>
+    <string name="value_mupen64plus_mupen64plus_pak1_none">Tidak Ada</string>
+
+    <string name="value_mupen64plus_mupen64plus_pak2_none">Tidak Ada</string>
+    <string name="value_mupen64plus_mupen64plus_pak2_rumble">Getaran</string>
+
+    <string name="value_melonds_screen_layout_topbottom">Atas - Bawah</string>
+    <string name="value_melonds_screen_layout_leftright">Kiri - Kanan</string>
+    <string name="value_melonds_screen_layout_hybridtop">Hibrida Atas</string>
+    <string name="value_melonds_screen_layout_hybridbottom">Hibrida Bawah</string>
+    <string name="value_melonds_mic_input_microphone">Mikrofon Asli</string>
+    <string name="value_melonds_mic_input_blow">Simulasi Tiupan</string>
+
+    <string name="value_citra_layout_option_topbottom">Atas - Bawah</string>
+    <string name="value_citra_layout_option_sidebyside">Kiri - Kanan</string>
+
+    <string name="value_desmume_screens_layout_topbottom">Atas - Bawah</string>
+    <string name="value_desmume_screens_layout_leftright">Kiri - Kanan</string>
+
+    <string name="value_ppsspp_cpu_core_jit">JIT</string>
+    <string name="value_ppsspp_cpu_core_irjit">IR JIT</string>
+    <string name="value_ppsspp_cpu_core_interpreter">Interpreter</string>
+
+    <string name="value_wswan_rotate_display_landscape">Lanskap</string>
+    <string name="value_wswan_rotate_display_portrait">Potret</string>
+
+    <string name="value_handy_rot_none">0</string>
+    <string name="value_handy_rot_90">90</string>
+    <string name="value_handy_rot_270">270</string>
+
+</resources>

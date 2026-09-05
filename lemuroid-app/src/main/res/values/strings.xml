@@ -1,0 +1,242 @@
+<resources>
+    <string name="app_name">Playdita</string>
+    <string name="title_home">Beranda</string>
+    <string name="title_search">Cari</string>
+    <string name="title_systems">Sistem</string>
+    <string name="title_games">Game</string>
+    <string name="title_settings">Pengaturan</string>
+    <string name="recent">Terbaru</string>
+    <string name="home_all_games">Semua Game</string>
+    <string name="home_recent_games">Terakhir Dimainkan</string>
+    <string name="favorites">Favorit</string>
+    <string name="discover">Jelajahi</string>
+    <string name="rescan">Pindai Ulang</string>
+    <string name="stop">Berhenti</string>
+    <string name="none">Tidak Ada</string>
+    <string name="directory">Direktori</string>
+    <string name="display_filter">Filter tampilan</string>
+    <string name="roms">ROM</string>
+    <string name="ok">Oke</string>
+    <string name="cancel">Batal</string>
+    <string name="settings">Pengaturan</string>
+    <string name="save_sync">Sinkronisasi Penyimpanan</string>
+    <string name="show_all">Tampilkan Semua</string>
+    <string name="back">Kembali</string>
+    <string name="close">Tutup</string>
+
+    <string name="game_page_search_suggestion">Cari game</string>
+
+    <string name="settings_category_general">Umum</string>
+    <string name="settings_title_theme">Tema</string>
+    <string name="theme_system">Default sistem</string>
+    <string name="theme_light">Terang</string>
+    <string name="theme_dark">Gelap</string>
+    <string name="settings_category_input">Kontrol</string>
+    <string name="settings_category_misc">Lainnya</string>
+    <string name="settings_title_enable_autosave">Simpan status otomatis</string>
+    <string name="settings_description_enable_autosave">Simpan progres otomatis saat keluar melalui menu game</string>
+    <string name="settings_title_enable_touch_feedback">Getar saat disentuh</string>
+    <string name="settings_title_tilt_sensitivity">Sensitivitas sensor kemiringan</string>
+    <string name="settings_title_hd_quality">Kualitas mode HD</string>
+    <string name="settings_title_maximum_cache_usage">Batas ukuran cache</string>
+
+    <string name="settings_title_boot_bios">Boot BIOS GBA</string>
+    <string name="settings_description_boot_bios">Tampilkan animasi startup klasik Game Boy Advance saat memulai game</string>
+    <string name="pref_key_boot_bios">pref_key_boot_bios</string>
+
+    <string name="settings_title_hd_mode">Mode HD</string>
+    <string name="settings_description_hd_mode">Terapkan filter peningkatan resolusi grafis</string>
+    <string name="settings_description_hd_quality">Sesuaikan kualitas grafis mode HD</string>
+
+    <string name="settings_title_immersive_mode">Mode imersif</string>
+    <string name="settings_description_immersive_mode">Mewarnai latar belakang secara dinamis berdasarkan visual game</string>
+
+    <string name="settings_title_gamepad_settings">Perangkat eksternal</string>
+    <string name="settings_description_gamepad_settings">Konfigurasikan gamepad dan keyboard eksternal</string>
+
+    <string name="settings_retropad_button_name">RetroPad %1$s</string>
+
+    <string name="settings_gamepad_category_enabled">Perangkat yang aktif</string>
+    <string name="settings_gamepad_category_general">Umum</string>
+    <string name="settings_gamepad_title_reset_bindings">Atur ulang tombol</string>
+    <string name="settings_gamepad_title_game_menu">Menu</string>
+
+    <string name="settings_title_open_cores_selection">Ganti Core</string>
+    <string name="settings_description_open_cores_selection">Pilih core emulator untuk sistem</string>
+    <string name="settings_core_selection_ds_info">Core emulator GBA sudah terkunci optimal.</string>
+
+    <string name="settings_title_display_bios_info">BIOS</string>
+    <string name="settings_description_display_bios_info">Tampilkan file BIOS yang terdeteksi dan didukung</string>
+    <string name="settings_bios_category_detected">Terdeteksi</string>
+    <string name="settings_bios_category_not_detected">Didukung</string>
+
+    <string name="settings_title_reset_settings">Reset ke setelan pabrik</string>
+    <string name="settings_description_reset_settings">Kembalikan aplikasi ke setelan awal pabrik</string>
+
+    <string name="settings_title_advanced_settings">Pengaturan lanjutan</string>
+    <string name="settings_description_advanced_settings">Tampilkan pengaturan lanjutan</string>
+    <string name="settings_title_low_latency_audio">Audio latensi rendah</string>
+    <string name="settings_description_low_latency_audio">Kurangi latensi audio pada perangkat yang didukung</string>
+
+    <string name="settings_title_direct_game_load">Pemuatan game langsung</string>
+    <string name="settings_description_direct_game_load">(Eksperimental) Kurangi waktu muat dan penggunaan cache</string>
+
+    <string name="settings_title_enable_rumble">Getaran game (Rumble)</string>
+    <string name="settings_description_enable_rumble">Aktifkan efek getar pada game dan kontroler yang mendukung</string>
+
+    <string name="settings_title_enable_device_rumble">Getaran perangkat</string>
+    <string name="settings_description_enable_device_rumble">Gunakan getaran HP saat tidak ada gamepad eksternal tersambung</string>
+
+    <string name="reset_settings_warning_message_title">Apakah Anda yakin?</string>
+    <string name="reset_settings_warning_message_description">Ini akan mereset aplikasi ke setelan awal pabrik. Data simpanan game Anda akan tetap aman.</string>
+
+    <string name="settings_title_save_sync">Penyimpanan cloud</string>
+    <string name="settings_description_save_sync">Cadangkan dan sinkronkan data simpanan Anda di cloud</string>
+    <string name="settings_save_sync_refresh">Sinkronisasi Manual</string>
+    <string name="settings_save_sync_refresh_description">Lakukan sinkronisasi sekarang.\n%1$s</string>
+    <string name="settings_save_sync_enable_auto">Sinkronisasi Otomatis</string>
+    <string name="settings_save_sync_enable_auto_description">Otomatis sinkronkan sebelum dan sesudah bermain saat terhubung ke Wi-Fi</string>
+    <string name="settings_save_sync_configure">Konfigurasi %1$s</string>
+    <string name="settings_save_sync_include_saves">Sinkronkan save in-game</string>
+    <string name="settings_save_sync_include_saves_description">%1$s di perangkat</string>
+    <string name="settings_save_sync_include_states">Sinkronkan save state</string>
+    <string name="settings_save_sync_include_states_description">Sinkronkan save state game</string>
+
+    <string name="game_context_menu_add_to_favorites">Tambah ke favorit</string>
+    <string name="game_context_menu_remove_from_favorites">Hapus dari favorit</string>
+    <string name="game_context_menu_resume">Lanjutkan</string>
+    <string name="game_context_menu_restart">Mulai Ulang</string>
+    <string name="game_context_menu_create_shortcut">Sematkan ke Beranda</string>
+
+    <string name="home_notification_title">Aktifkan notifikasi</string>
+    <string name="home_notification_message">Aplikasi menggunakan notifikasi saat game atau pemindaian berjalan di latar belakang.</string>
+    <string name="home_notification_action">Aktifkan</string>
+
+    <string name="home_microphone_title">Aktifkan mikrofon</string>
+    <string name="home_microphone_message">Game tertentu dapat memanfaatkan mikrofon untuk fungsi tambahan.</string>
+    <string name="home_microphone_action">Aktifkan</string>
+
+    <string name="home_empty_title">Pilih direktori ROM Game</string>
+    <string name="home_empty_message">Aplikasi membutuhkan folder yang berisi file game GBA (.gba).\nProses pemindaian memerlukan beberapa saat.</string>
+    <string name="home_empty_action">Pilih Direktori</string>
+
+    <string name="home_notification_desmume_deprecated_title">Pemberitahuan</string>
+    <string name="home_notification_desmume_deprecated_message">Aplikasi dioptimalkan khusus untuk Game Boy Advance.</string>
+    <string name="home_notification_desmume_deprecated_action">Oke</string>
+
+    <string name="game_menu_save">Simpan</string>
+    <string name="game_menu_load">Muat</string>
+    <string name="game_menu_restart">Mulai Ulang</string>
+    <string name="game_menu_quit">Keluar</string>
+    <string name="game_menu_settings">Pengaturan</string>
+    <string name="game_menu_state">Slot State %1$s</string>
+    <string name="game_menu_change_disk_button">Ganti Disket</string>
+    <string name="game_menu_edit_touch_controls">Edit Tombol Layar</string>
+    <string name="game_menu_mute_audio">Bisukan</string>
+    <string name="game_menu_fast_forward">Percepat</string>
+    <string name="game_menu_change_disk_disk">Disket %1$s</string>
+    <string name="game_menu_tilt_sensor">Sensor Kemiringan</string>
+
+    <string name="game_loading_preparing_game">Menyiapkan game…</string>
+
+    <string name="game_toast_settings_button_using_gamepad">Gamepad terdeteksi. Buka menu pengaturan dengan %1$s.</string>
+    <string name="game_toast_load_state_failed">Gagal memuat save state ini</string>
+    <string name="game_toast_quick_save_loaded">Progres berhasil dimuat</string>
+    <string name="game_toast_quick_save_saved">Progres berhasil disimpan</string>
+
+    <string name="empty_view_default">Tidak Ada Item</string>
+
+    <string name="core_settings_title">Pengaturan Core</string>
+    <string name="core_settings_category_preferences">Preferensi</string>
+    <string name="core_settings_category_controllers">Kontroler</string>
+    <string name="core_settings_controller">Kontroler %1$s</string>
+
+    <string name="game_menu_title">Menu Game</string>
+
+    <string name="notification_channel_name">Semua notifikasi</string>
+    <string name="library_index_notification_title">Sedang memindai file game GBA</string>
+    <string name="library_index_notification_message">Proses ini dapat memakan waktu beberapa saat</string>
+
+    <string name="save_sync_notification_title">Sinkronisasi cloud sedang berjalan</string>
+    <string name="save_sync_notification_message">Proses ini dapat memakan waktu beberapa saat</string>
+    <string name="game_running_notification_title_alternative">Game sedang berjalan</string>
+    <string name="game_running_notification_message">Pastikan untuk menyimpan progres permainan Anda</string>
+
+    <string name="game_loader_error_gl_incompatible">Core ini membutuhkan versi OpenGL ES yang tidak didukung oleh perangkat Anda.</string>
+    <string name="game_loader_error_load_game">Terjadi kendala saat memuat game. Pastikan file ROM bertipe GBA (.gba) dan pindai ulang.</string>
+    <string name="game_loader_error_save">Terjadi kendala dengan file simpanan. Coba nonaktifkan auto-save jika masalah berlanjut.</string>
+    <string name="game_loader_error_unsupported_architecture">Core ini tidak didukung oleh arsitektur perangkat Anda.</string>
+
+    <string name="game_loader_error_generic">Terjadi kendala. Coba langkah berikut:\n
+        \n\u2022 Nonaktifkan simpan otomatis lalu jalankan ulang game
+        \n\u2022 Buka pengaturan Android dan hapus cache aplikasi
+        \n\u2022 Buka pengaturan aplikasi lalu lakukan Reset Pabrik
+    </string>
+
+    <string name="game_loader_error_missing_bios">File BIOS yang diperlukan belum ditemukan. Masukkan file BIOS ke folder ROM Anda lalu pindai ulang: %1$s</string>
+
+    <string name="game_shortcut_error">Terjadi kendala saat memuat game. Pastikan game ini masih ada di folder ROM Anda.</string>
+
+    <string name="dialog_saf_not_found">Perangkat ini tidak mendukung pemilih file SAF. Salin file ROM .gba ke %1$s lalu tekan Pindai Ulang.</string>
+
+    <string name="system_grid_details">%1$s game</string>
+
+    <string name="tv_folder_picker_title">Pilih Direktori ROM GBA</string>
+    <string name="tv_folder_picker_action_choose">Pilih</string>
+    <string name="tv_folder_picker_action_cancel">Batal</string>
+    <string name="tv_folder_storage_primary">Penyimpanan utama</string>
+    <string name="tv_folder_storage_secondary">Penyimpanan sekunder %1$s</string>
+    <string name="tv_folder_storage_title">Pilih penyimpanan</string>
+
+    <string name="tv_home_section_favorites">Favorit</string>
+    <string name="tv_home_section_recents">Terbaru</string>
+    <string name="tv_home_section_systems">Sistem</string>
+    <string name="tv_home_section_settings">Pengaturan</string>
+
+    <string name="gamepad_binding_update_title">Atur tombol \"RetroPad %1$s\"</string>
+    <string name="gamepad_binding_update_description">Tekan tombol pada kontroler \"%1$s\" Anda</string>
+    <string name="shortcut_binding_update_title">Atur tombol \"Shortcut %1$s\"</string>
+    <string name="shortcut_binding_update_description">Tekan tombol pertama, lalu kedua untuk kombinasi tombol pada \"%1$s\"</string>
+
+    <string name="tv_search_results">Game</string>
+    <string name="tv_game_message_missing_gamepad">Gamepad diperlukan untuk bermain. Sambungkan gamepad Anda.</string>
+
+    <string name="game_edit_touch_controls_error_not_visible">Putuskan koneksi gamepad untuk mengedit tombol kontrol layar sentuh</string>
+
+    <string name="game_interactory_busy">Tunggu proses yang sedang berjalan selesai</string>
+    <string name="game_interactor_notification_permission_required">Aktifkan izin notifikasi dari Beranda untuk melanjutkan</string>
+
+    <string name="game_process_another_game_running">Tutup game yang sedang berjalan sebelum memulai game lain</string>
+
+    <string name="mobile_settings_help">Bantuan</string>
+    <string name="mobile_settings_support">Dukungan</string>
+    <string name="lemuroid_help_content"><![CDATA[
+        <b>&#8226;Bagaimana cara menggunakan aplikasi?</b><br/>
+        Salin file game GBA (.gba) Anda ke dalam sebuah folder di penyimpanan perangkat, lalu pilih folder tersebut di aplikasi. Setelah pemindaian selesai, game Anda akan langsung muncul.<br/><br/>
+        <b>&#8226;Mengapa game tidak terdeteksi?</b><br/>
+        Pastikan file game berekstensi .gba atau .agb (tidak terkompresi zip jika zip berisi format non-GBA).
+    ]]></string>
+
+    <string name="lemuroid_crash_disclamer">Core emulator mengalami kendala tidak terduga. Silakan mulai ulang game Anda.</string>
+
+    <string name="error_message_incompatible_state">Save state ini tidak kompatibel dengan versi core saat ini.</string>
+
+    <string name="shader_filter_names_auto">Otomatis</string>
+    <string name="shader_filter_names_sharp">Tajam (Sharp)</string>
+    <string name="shader_filter_names_smooth">Halus (Smooth)</string>
+    <string name="shader_filter_names_crt">CRT TV</string>
+    <string name="shader_filter_names_lcd">Layar LCD</string>
+
+    <string name="haptic_feedback_mode_names_none">Tidak Ada</string>
+    <string name="haptic_feedback_mode_names_press">Saat Ditekan</string>
+    <string name="haptic_feedback_mode_names_press_release">Saat Ditekan &amp; Dilepas</string>
+
+    <string name="tilt_configuration_disabled">Nonaktif</string>
+    <string name="tilt_configuration_cross">D-PAD</string>
+    <string name="tilt_configuration_analog_left">Analog Kiri</string>
+    <string name="tilt_configuration_analog_right">Analog Kanan</string>
+    <string name="tilt_configuration_buttons_l_r">L - R</string>
+    <string name="tilt_configuration_buttons_l1_r1">L1 - R1</string>
+    <string name="tilt_configuration_buttons_l2_r2">L2 - R2</string>
+
+</resources>

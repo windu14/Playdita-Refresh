@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gdrive_sign_in_failed">Gagal masuk dengan Google: %s (%s)</string>
+    <string name="gdrive_sign_in_success">Masuk ke Google sebagai %s</string>
+    <string name="gdrive_sign_out_success">Keluar dari Google</string>
+    <string name="gdrive_missing_play_services">Google Drive memerlukan Layanan Google Play yang tidak didukung pada perangkat ini</string>
+    <string name="gdrive_connected_summary">Terhubung ke %s</string>
+    <string name="gdrive_connected_none_summary">Belum dikonfigurasi</string>
+    <string name="gdrive_last_sync_completed">Sinkronisasi terakhir: %s</string>
+
+    <string name="game_loading_download_core">Mengunduh Core Emulator…</string>
+
+    <string name="installing_core_notification_title">Memperbarui Core dari Google Play</string>
+    <string name="installing_core_notification_message">Buka aplikasi Google Play Store untuk melihat status</string>
+
+    <string name="game_loader_error_load_core">Core Libretro tidak dapat dimuat. Coba langkah berikut:\n
+        \n\u2022 Hubungkan ke internet dan pindai ulang game Anda
+        \n\u2022 Pastikan Google Play Store terpasang dan berjalan
+        \n\u2022 Tunggu operasi tertunda di Google Play Store selesai</string>
+</resources>

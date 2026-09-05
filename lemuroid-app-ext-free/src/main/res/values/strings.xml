@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="game_loading_download_core">Mengunduh core emulator…</string>
+
+    <string name="installing_core_notification_title">Memperbarui Core Emulator</string>
+    <string name="installing_core_notification_message">Proses ini dapat memakan waktu beberapa saat</string>
+
+    <string name="game_loader_error_load_core">Core Libretro tidak dapat dimuat. Pastikan perangkat Anda terhubung ke internet dan coba pindai ulang pustaka game Anda.</string>
+</resources>
