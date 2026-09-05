@@ -21,11 +21,11 @@ import androidx.compose.material.icons.filled.Height
 import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material.icons.filled.RotateLeft
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ExpressiveMorphingLoadingIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -219,8 +219,8 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center,
             ) {
-                CircularProgressIndicator(
-                    strokeCap = androidx.compose.ui.graphics.StrokeCap.Round,
+                ExpressiveMorphingLoadingIndicator(
+                    size = 48.dp,
                 )
             }
         }

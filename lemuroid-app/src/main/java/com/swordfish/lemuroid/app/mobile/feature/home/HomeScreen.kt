@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -56,10 +57,10 @@ import kotlin.math.absoluteValue
 import androidx.lifecycle.Lifecycle
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ExperimentalMaterial3ExpressiveApi
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ExpressiveLinearProgressIndicator
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ExpressiveMorphingLoadingIndicator
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LemuroidGameCard
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ScallopBadge
-import com.swordfish.lemuroid.app.mobile.shared.compose.ui.WavyCircularProgressIndicator
-import com.swordfish.lemuroid.app.mobile.shared.compose.ui.WavyLinearProgressIndicator
 import com.swordfish.lemuroid.app.utils.android.ComposableLifecycle
 import com.swordfish.lemuroid.common.displayDetailsSettingsScreen
 import com.swordfish.lemuroid.lib.library.db.entity.Game
@@ -140,7 +141,7 @@ private fun HomeScreen(
                     .padding(top = 8.dp, bottom = 90.dp),
             verticalArrangement = Arrangement.spacedBy(22.dp),
         ) {
-            // Indexing Wavy Snake Loader
+            // Indexing Material 3 Expressive Loader
             AnimatedVisibility(state.indexInProgress) {
                 Column(
                     modifier = Modifier
@@ -148,7 +149,7 @@ private fun HomeScreen(
                         .padding(horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    WavyLinearProgressIndicator(
+                    ExpressiveLinearProgressIndicator(
                         color = MaterialTheme.colorScheme.primary,
                         trackColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
                     )
@@ -276,34 +277,39 @@ private fun HomeRecentCarousel(
             }
         }
 
-        // Spacious Card Carousel with clean spacing and subtle focus scale
+        // Stacked Cards Carousel: smooth overlap, tactile micro-rotation & depth on swipe
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(268.dp),
-            contentPadding = PaddingValues(horizontal = 60.dp),
-            pageSpacing = 16.dp,
+                .height(274.dp),
+            contentPadding = PaddingValues(horizontal = 68.dp),
+            pageSpacing = (-24).dp,
         ) { page ->
             val game = games[page]
             val pageOffset = ((pagerState.currentPage - page) + pagerState.currentPageOffsetFraction)
-            val absOffset = pageOffset.absoluteValue.coerceIn(0f, 2f)
+            val absOffset = pageOffset.absoluteValue.coerceIn(0f, 2.5f)
 
-            val scale = lerp(0.92f, 1f, 1f - (absOffset * 0.20f).coerceIn(0f, 1f))
-            val alpha = lerp(0.85f, 1f, 1f - (absOffset * 0.20f).coerceIn(0f, 1f))
+            val scale = (1f - (absOffset * 0.09f)).coerceIn(0.85f, 1f)
+            val alpha = (1f - (absOffset * 0.15f)).coerceIn(0.72f, 1f)
+            val rotationZ = (-pageOffset * 2.0f).coerceIn(-4.5f, 4.5f)
+            val translationY = (absOffset * 3.dp.value)
 
             Box(
                 modifier = Modifier
                     .fillMaxSize()
+                    .zIndex(10f - absOffset)
                     .graphicsLayer {
                         this.scaleX = scale
                         this.scaleY = scale
                         this.alpha = alpha
+                        this.rotationZ = rotationZ
+                        this.translationY = translationY
                     },
                 contentAlignment = Alignment.Center,
             ) {
                 LemuroidGameCard(
-                    modifier = Modifier.width(184.dp),
+                    modifier = Modifier.width(190.dp),
                     game = game,
                     onClick = { onGameClicked(game) },
                     onLongClick = { onGameLongClick(game) },
@@ -440,24 +446,31 @@ private fun HomeNotification(
     enabled: Boolean = true,
     onAction: () -> Unit = { },
 ) {
+    val cardShape = RoundedCornerShape(24.dp)
     ElevatedCard(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-        shape = RoundedCornerShape(26.dp),
+                .padding(horizontal = 16.dp)
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                    shape = cardShape,
+                ),
+        shape = cardShape,
         elevation = CardDefaults.elevatedCardElevation(
             defaultElevation = 2.dp,
-            pressedElevation = 6.dp,
+            pressedElevation = 4.dp,
         ),
         colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
+            containerColor = MaterialTheme.colorScheme.surface,
         ),
     ) {
         Column(
             modifier =
                 Modifier
                     .fillMaxWidth()
+                    .clip(cardShape)
                     .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {

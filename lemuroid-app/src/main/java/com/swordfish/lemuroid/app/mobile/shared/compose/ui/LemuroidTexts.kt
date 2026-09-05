@@ -1,10 +1,11 @@
 package com.swordfish.lemuroid.app.mobile.shared.compose.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -40,7 +41,7 @@ fun LemuroidTexts(
     subtitle: String,
 ) {
     Column(
-        modifier = modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+        modifier = modifier.padding(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 10.dp),
     ) {
         Text(
             text = title,
@@ -55,22 +56,26 @@ fun LemuroidTexts(
         )
 
         if (subtitle.isNotBlank()) {
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(5.dp))
             Surface(
-                shape = RoundedCornerShape(6.dp),
-                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.55f),
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.75f),
+                border = BorderStroke(
+                    width = 0.75.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                ),
             ) {
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.labelSmall.copy(
                         fontWeight = FontWeight.Bold,
-                        fontSize = 10.sp,
-                        letterSpacing = 0.2.sp,
+                        fontSize = 9.5.sp,
+                        letterSpacing = 0.4.sp,
                     ),
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.5.dp),
                 )
             }
         }

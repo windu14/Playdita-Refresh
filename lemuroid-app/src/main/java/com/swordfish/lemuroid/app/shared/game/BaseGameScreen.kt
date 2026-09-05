@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material3.CircularProgressIndicator
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ExpressiveMorphingLoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,8 +42,8 @@ fun BaseGameScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                CircularProgressIndicator(
-                    strokeCap = androidx.compose.ui.graphics.StrokeCap.Round,
+                ExpressiveMorphingLoadingIndicator(
+                    size = 52.dp,
                 )
 
                 val message = if (gameState is GameViewModelRetroGameView.GameState.Loading) gameState.message else null

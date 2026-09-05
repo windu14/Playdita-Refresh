@@ -52,7 +52,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ExperimentalMaterial3ExpressiveApi
-import com.swordfish.lemuroid.app.mobile.shared.compose.ui.WavyLinearProgressIndicator
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ExpressiveLinearProgressIndicator
 import com.swordfish.lemuroid.app.shared.savesync.SaveSyncWork
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -76,7 +76,7 @@ fun MainTopBar(
         )
 
         AnimatedVisibility(mainUIState.operationInProgress) {
-            WavyLinearProgressIndicator(
+            ExpressiveLinearProgressIndicator(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp),

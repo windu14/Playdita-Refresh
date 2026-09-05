@@ -22,7 +22,7 @@ import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ExperimentalMaterial3ExpressiveApi
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LemuroidEmptyView
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LemuroidGameListRow
-import com.swordfish.lemuroid.app.mobile.shared.compose.ui.WavyCircularProgressIndicator
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ExpressiveMorphingLoadingIndicator
 import com.swordfish.lemuroid.lib.library.db.entity.Game
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -118,13 +118,14 @@ private fun SearchEmptyView(
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun SearchLoadingView(modifier: Modifier) {
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
-        WavyCircularProgressIndicator()
+        ExpressiveMorphingLoadingIndicator(
+            size = 48.dp,
+        )
     }
 }

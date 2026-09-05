@@ -54,136 +54,74 @@ import kotlin.math.sin
 annotation class ExperimentalMaterial3ExpressiveApi
 
 /**
- * Material 3 Expressive Wavy/Snake Progress Bar.
- * Draws an animated sinusoidal wave with rounded endpoints, as shown in the M3 Expressive design system.
+ * Material 3 Expressive Morphing Loading Indicator.
+ * Smoothly and continuously morphs between organic geometric shapes (Circle -> Squircle -> 4-Lobed Clover)
+ * with kinetic rotation, dynamic scaling, and an inner harmonic pulse.
  */
 @Composable
-fun WavyLinearProgressIndicator(
-    modifier: Modifier = Modifier,
-    progress: Float? = null, // null for indeterminate wave animation
-    color: Color = MaterialTheme.colorScheme.primary,
-    trackColor: Color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
-    waveAmplitude: Dp = 4.dp,
-    wavelength: Dp = 24.dp,
-    strokeWidth: Dp = 4.dp,
-) {
-    val infiniteTransition = rememberInfiniteTransition(label = "WavyProgressTransition")
-    val phase by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 2 * PI.toFloat(),
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1200, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart,
-        ),
-        label = "WavePhase",
-    )
-
-    Canvas(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(waveAmplitude * 2 + strokeWidth + 6.dp)
-            .padding(horizontal = 4.dp),
-    ) {
-        val width = size.width
-        val centerY = size.height / 2f
-        val amp = waveAmplitude.toPx()
-        val wl = wavelength.toPx().coerceAtLeast(20f)
-        val stroke = strokeWidth.toPx()
-
-        // 1. Draw track line
-        drawLine(
-            color = trackColor,
-            start = Offset(0f, centerY),
-            end = Offset(width, centerY),
-            strokeWidth = stroke,
-            cap = StrokeCap.Round,
-        )
-
-        // 2. Draw animated sinusoidal wavy progress
-        val activeWidth = if (progress != null) width * progress.coerceIn(0f, 1f) else width
-        if (activeWidth > 2f) {
-            val wavePath = Path()
-            var first = true
-            var x = 0f
-            val step = 3f
-
-            while (x <= activeWidth) {
-                val waveFactor = if (progress != null) {
-                    // Smooth transition from straight line to wave near the head
-                    (x / activeWidth).coerceIn(0f, 1f)
-                } else 1f
-
-                val currentAmp = amp * waveFactor
-                val y = centerY + currentAmp * sin((x / wl) * 2 * PI.toFloat() - phase)
-
-                if (first) {
-                    wavePath.moveTo(x, y)
-                    first = false
-                } else {
-                    wavePath.lineTo(x, y)
-                }
-                x += step
-            }
-
-            drawPath(
-                path = wavePath,
-                color = color,
-                style = Stroke(width = stroke, cap = StrokeCap.Round),
-            )
-
-            // Draw leading cap dot
-            val leadY = centerY + (amp * if (progress != null) 1f else 1f) * sin((activeWidth / wl) * 2 * PI.toFloat() - phase)
-            drawCircle(
-                color = color,
-                radius = stroke * 0.9f,
-                center = Offset(activeWidth, leadY),
-            )
-        }
-    }
-}
-
-/**
- * Material 3 Expressive Scallop Circular Loading Indicator.
- * Creates an undulating flower/scallop shape with pulsing breath animation.
- */
-@Composable
-fun WavyCircularProgressIndicator(
+fun ExpressiveMorphingLoadingIndicator(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.primary,
-    trackColor: Color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
-    size: Dp = 48.dp,
-    lobes: Int = 8,
+    trackColor: Color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f),
+    size: Dp = 44.dp,
+    strokeWidth: Dp = 3.5.dp,
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "CircularWave")
+    val infiniteTransition = rememberInfiniteTransition(label = "ExpressiveMorphingTransition")
+
+    // Kinetic rotation with fluid acceleration & deceleration (FastOutSlowInEasing)
     val rotation by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 360f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 3500, easing = LinearEasing),
+            animation = tween(durationMillis = 2200, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Restart,
         ),
-        label = "CircularWaveRotation",
+        label = "KineticRotation",
     )
-    val pulse by infiniteTransition.animateFloat(
-        initialValue = 0.88f,
-        targetValue = 1.08f,
+
+    // Shape morphing cycle between circle (0.04f) and expressive 4-lobed squircle/clover (0.26f)
+    val morphFactor by infiniteTransition.animateFloat(
+        initialValue = 0.04f,
+        targetValue = 0.26f,
         animationSpec = infiniteRepeatable(
             animation = tween(durationMillis = 1400, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse,
         ),
-        label = "CircularWavePulse",
+        label = "MorphFactor",
+    )
+
+    // Breathing pulse scale
+    val pulseScale by infiniteTransition.animateFloat(
+        initialValue = 0.90f,
+        targetValue = 1.04f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 750, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "PulseScale",
     )
 
     Canvas(modifier = modifier.size(size)) {
         val center = Offset(this.size.width / 2f, this.size.height / 2f)
-        val baseRadius = (this.size.width / 2f - 6.dp.toPx()) * pulse
-        val waveAmplitude = 4.dp.toPx()
+        val maxRadius = (this.size.width / 2f - strokeWidth.toPx() - 2.dp.toPx()) * pulseScale
+        val rotRad = Math.toRadians(rotation.toDouble()).toFloat()
 
+        // 1. Draw subtle ambient track circle
+        drawCircle(
+            color = trackColor,
+            radius = maxRadius,
+            center = center,
+            style = Stroke(width = strokeWidth.toPx() * 0.75f),
+        )
+
+        // 2. Draw animated M3 Expressive Morphing contour
         val path = Path()
-        val totalPoints = 120
-        for (i in 0..totalPoints) {
-            val angle = (i.toFloat() / totalPoints) * 2 * PI.toFloat()
-            val r = baseRadius + waveAmplitude * sin(lobes * angle + Math.toRadians(rotation.toDouble()).toFloat())
+        val steps = 90
+        val nLobes = 4 // 4-lobed expressive clover / squircle
+
+        for (i in 0..steps) {
+            val angle = (i.toFloat() / steps) * 2f * PI.toFloat()
+            val r = maxRadius * (1f + morphFactor * cos(nLobes * (angle - rotRad)))
             val x = center.x + r * cos(angle)
             val y = center.y + r * sin(angle)
             if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
@@ -193,9 +131,154 @@ fun WavyCircularProgressIndicator(
         drawPath(
             path = path,
             color = color,
-            style = Stroke(width = 3.5.dp.toPx(), cap = StrokeCap.Round),
+            style = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round),
+        )
+
+        // 3. Central expressive nucleus
+        drawCircle(
+            color = color,
+            radius = strokeWidth.toPx() * (1.1f - morphFactor * 1.5f),
+            center = center,
         )
     }
+}
+
+/**
+ * Material 3 Expressive Linear Progress Bar.
+ * Clean, smooth indeterminate progress pill with dynamic length morphing and rounded caps,
+ * replacing wavy/snake animations with modern M3 Expressive motion.
+ */
+@Composable
+fun ExpressiveLinearProgressIndicator(
+    modifier: Modifier = Modifier,
+    progress: Float? = null,
+    color: Color = MaterialTheme.colorScheme.primary,
+    trackColor: Color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f),
+    strokeWidth: Dp = 4.dp,
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "ExpressiveLinearTransition")
+
+    // Dynamic head and tail progress for indeterminate morphing pill
+    val headProgress by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1400, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "LinearHead",
+    )
+
+    val tailProgress by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1400, delayMillis = 180, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "LinearTail",
+    )
+
+    Canvas(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(strokeWidth + 4.dp)
+            .padding(horizontal = 2.dp),
+    ) {
+        val width = size.width
+        val centerY = size.height / 2f
+        val stroke = strokeWidth.toPx()
+
+        // 1. Background rounded track
+        drawLine(
+            color = trackColor,
+            start = Offset(stroke / 2f, centerY),
+            end = Offset(width - stroke / 2f, centerY),
+            strokeWidth = stroke,
+            cap = StrokeCap.Round,
+        )
+
+        // 2. Active morphing indicator
+        if (progress != null) {
+            val endX = (stroke / 2f + (width - stroke) * progress.coerceIn(0f, 1f)).coerceAtLeast(stroke / 2f)
+            drawLine(
+                color = color,
+                start = Offset(stroke / 2f, centerY),
+                end = Offset(endX, centerY),
+                strokeWidth = stroke,
+                cap = StrokeCap.Round,
+            )
+        } else {
+            val startX = (stroke / 2f + (width - stroke) * tailProgress).coerceIn(stroke / 2f, width - stroke / 2f)
+            val endX = (stroke / 2f + (width - stroke) * headProgress).coerceIn(stroke / 2f, width - stroke / 2f)
+
+            if (endX > startX) {
+                drawLine(
+                    color = color,
+                    start = Offset(startX, centerY),
+                    end = Offset(endX, centerY),
+                    strokeWidth = stroke,
+                    cap = StrokeCap.Round,
+                )
+            } else {
+                drawLine(
+                    color = color,
+                    start = Offset(startX, centerY),
+                    end = Offset(width - stroke / 2f, centerY),
+                    strokeWidth = stroke,
+                    cap = StrokeCap.Round,
+                )
+                drawLine(
+                    color = color,
+                    start = Offset(stroke / 2f, centerY),
+                    end = Offset(endX, centerY),
+                    strokeWidth = stroke,
+                    cap = StrokeCap.Round,
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Global bridge: replaces old wavy snake with M3 Expressive linear indicator.
+ */
+@Composable
+fun WavyLinearProgressIndicator(
+    modifier: Modifier = Modifier,
+    progress: Float? = null,
+    color: Color = MaterialTheme.colorScheme.primary,
+    trackColor: Color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+    waveAmplitude: Dp = 4.dp,
+    wavelength: Dp = 24.dp,
+    strokeWidth: Dp = 4.dp,
+) {
+    ExpressiveLinearProgressIndicator(
+        modifier = modifier,
+        progress = progress,
+        color = color,
+        trackColor = trackColor,
+        strokeWidth = strokeWidth,
+    )
+}
+
+/**
+ * Global bridge: replaces old circular wave with M3 Expressive morphing indicator.
+ */
+@Composable
+fun WavyCircularProgressIndicator(
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.primary,
+    trackColor: Color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+    size: Dp = 48.dp,
+    lobes: Int = 8,
+) {
+    ExpressiveMorphingLoadingIndicator(
+        modifier = modifier,
+        color = color,
+        trackColor = trackColor,
+        size = size,
+    )
 }
 
 /**
