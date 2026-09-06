@@ -41,6 +41,7 @@ fun LemuroidGameCard(
     onLongClick: () -> Unit = { },
 ) {
     val cardShape = RoundedCornerShape(20.dp)
+    val haptics = rememberLemuroidHaptics()
 
     ElevatedCard(
         modifier = modifier
@@ -68,8 +69,14 @@ fun LemuroidGameCard(
                 .combinedClickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = ripple(color = MaterialTheme.colorScheme.primary),
-                    onClick = onClick,
-                    onLongClick = onLongClick,
+                    onClick = {
+                        haptics.click()
+                        onClick()
+                    },
+                    onLongClick = {
+                        haptics.longPress()
+                        onLongClick()
+                    },
                 ),
         ) {
             Box(

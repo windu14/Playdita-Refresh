@@ -57,10 +57,9 @@ import kotlin.math.absoluteValue
 import androidx.lifecycle.Lifecycle
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ExperimentalMaterial3ExpressiveApi
-import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ExpressiveLinearProgressIndicator
-import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ExpressiveMorphingLoadingIndicator
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LemuroidGameCard
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ScallopBadge
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.rememberLemuroidHaptics
 import com.swordfish.lemuroid.app.utils.android.ComposableLifecycle
 import com.swordfish.lemuroid.common.displayDetailsSettingsScreen
 import com.swordfish.lemuroid.lib.library.db.entity.Game
@@ -141,23 +140,8 @@ private fun HomeScreen(
                     .padding(top = 8.dp, bottom = 90.dp),
             verticalArrangement = Arrangement.spacedBy(22.dp),
         ) {
-            // Indexing Material 3 Expressive Loader
-            AnimatedVisibility(state.indexInProgress) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    ExpressiveLinearProgressIndicator(
-                        color = MaterialTheme.colorScheme.primary,
-                        trackColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
-                    )
-                }
-            }
-
-        // Notification / Permission cards
-        AnimatedVisibility(state.showNoNotificationPermissionCard) {
+            // Notification / Permission cards
+            AnimatedVisibility(state.showNoNotificationPermissionCard) {
             HomeNotification(
                 titleId = R.string.home_notification_title,
                 messageId = R.string.home_notification_message,
@@ -226,6 +210,11 @@ private fun HomeRecentCarousel(
     if (games.isEmpty()) return
 
     val pagerState = rememberPagerState(pageCount = { games.size })
+    val haptics = rememberLemuroidHaptics()
+
+    androidx.compose.runtime.LaunchedEffect(pagerState.currentPage) {
+        haptics.tick()
+    }
 
     Column(
         modifier = Modifier.fillMaxWidth(),

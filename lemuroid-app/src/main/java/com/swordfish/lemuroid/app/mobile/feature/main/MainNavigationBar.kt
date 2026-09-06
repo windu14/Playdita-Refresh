@@ -49,6 +49,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 
 import androidx.compose.ui.graphics.luminance
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.rememberLemuroidHaptics
 
 @Composable
 fun MainNavigationBar(
@@ -57,6 +58,7 @@ fun MainNavigationBar(
     modifier: Modifier = Modifier,
 ) {
     val isVisible = currentRoute?.showBottomNavigation != false
+    val haptics = rememberLemuroidHaptics()
 
     AnimatedVisibility(
         visible = isVisible,
@@ -136,6 +138,7 @@ fun MainNavigationBar(
                                 isCenter = isCenter,
                                 isDark = isDark,
                                 onClick = {
+                                    haptics.click()
                                     navController.navigate(destination.route.route) {
                                         popUpTo(navController.graph.findStartDestination().id) {
                                             saveState = false

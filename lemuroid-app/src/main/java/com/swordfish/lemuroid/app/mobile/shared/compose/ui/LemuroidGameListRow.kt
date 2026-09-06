@@ -29,6 +29,7 @@ fun LemuroidGameListRow(
     onFavoriteToggle: (Boolean) -> Unit,
 ) {
     val rowShape = RoundedCornerShape(20.dp)
+    val haptics = rememberLemuroidHaptics()
 
     Surface(
         modifier = modifier
@@ -36,8 +37,14 @@ fun LemuroidGameListRow(
             .padding(horizontal = 12.dp, vertical = 4.dp)
             .clip(rowShape)
             .combinedClickable(
-                onClick = onClick,
-                onLongClick = onLongClick,
+                onClick = {
+                    haptics.click()
+                    onClick()
+                },
+                onLongClick = {
+                    haptics.longPress()
+                    onLongClick()
+                },
             ),
         shape = rowShape,
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),

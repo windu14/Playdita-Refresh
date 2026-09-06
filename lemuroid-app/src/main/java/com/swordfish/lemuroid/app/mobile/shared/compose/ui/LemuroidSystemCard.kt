@@ -34,10 +34,14 @@ fun LemuroidSystemCard(
         }
 
     val cardShape = androidx.compose.foundation.shape.RoundedCornerShape(22.dp)
+    val haptics = rememberLemuroidHaptics()
 
     ElevatedCard(
         modifier = modifier,
-        onClick = onClick,
+        onClick = {
+            haptics.click()
+            onClick()
+        },
         shape = cardShape,
         elevation = androidx.compose.material3.CardDefaults.elevatedCardElevation(
             defaultElevation = 2.dp,

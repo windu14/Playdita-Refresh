@@ -24,6 +24,8 @@ fun FavoriteToggle(
     isToggled: Boolean,
     onFavoriteToggle: (Boolean) -> Unit,
 ) {
+    val haptics = rememberLemuroidHaptics()
+
     val scale by animateFloatAsState(
         targetValue = if (isToggled) 1.15f else 1.0f,
         animationSpec = spring(dampingRatio = 0.5f),
@@ -41,7 +43,10 @@ fun FavoriteToggle(
 
     IconToggleButton(
         checked = isToggled,
-        onCheckedChange = onFavoriteToggle,
+        onCheckedChange = {
+            haptics.toggle()
+            onFavoriteToggle(it)
+        },
         modifier = Modifier.fillMaxSize(),
     ) {
         val image = if (isToggled) {
