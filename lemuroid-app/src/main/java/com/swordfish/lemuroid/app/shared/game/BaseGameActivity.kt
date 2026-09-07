@@ -18,6 +18,7 @@ import com.swordfish.lemuroid.app.mobile.feature.settings.SettingsManager
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.AppTheme
 import com.swordfish.lemuroid.app.shared.GameMenuContract
 import com.swordfish.lemuroid.app.shared.ImmersiveActivity
+import com.swordfish.lemuroid.app.shared.cheat.CheatManager
 import com.swordfish.lemuroid.app.shared.coreoptions.CoreOption
 import com.swordfish.lemuroid.app.shared.coreoptions.LemuroidCoreOption
 import com.swordfish.lemuroid.app.shared.game.viewmodel.GameViewModelSideEffects
@@ -135,6 +136,10 @@ abstract class BaseGameActivity : ImmersiveActivity() {
                 gameLoader,
                 intent.getBooleanExtra(EXTRA_LOAD_SAVE, false),
             )
+            runCatching {
+                val retroView = baseGameScreenViewModel.retroGameView.retroGameViewFlow()
+                CheatManager(applicationContext).applyCheatsToEmulator(game, retroView)
+            }
         }
 
         onBackPressedDispatcher.addCallback(
@@ -412,6 +417,12 @@ abstract class BaseGameActivity : ImmersiveActivity() {
             if (data?.hasExtra(GameMenuContract.RESULT_CHANGE_TILT_CONFIG) == true) {
                 val tiltConfig = data.serializable<TiltConfiguration>(GameMenuContract.RESULT_CHANGE_TILT_CONFIG)
                 baseGameScreenViewModel.changeTiltConfiguration(tiltConfig!!)
+            }
+            if (data?.getBooleanExtra(GameMenuContract.RESULT_CHEATS_UPDATED, false) == true) {
+                runCatching {
+                    val retroView = baseGameScreenViewModel.retroGameView.retroGameView
+                    CheatManager(applicationContext).applyCheatsToEmulator(game, retroView)
+                }
             }
         }
     }

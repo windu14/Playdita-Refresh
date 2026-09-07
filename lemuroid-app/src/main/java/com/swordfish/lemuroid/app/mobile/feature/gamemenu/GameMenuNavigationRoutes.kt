@@ -29,6 +29,11 @@ enum class GameMenuRoute(
         titleId = R.string.game_menu_title,
         parent = null,
     ),
+    CHEATS(
+        route = "cheats",
+        titleId = R.string.game_menu_cheats,
+        parent = HOME,
+    ),
     SAVE(
         route = "save",
         titleId = R.string.game_menu_save,

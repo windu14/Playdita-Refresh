@@ -42,6 +42,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.swordfish.lemuroid.R
+import com.swordfish.lemuroid.app.mobile.feature.gamemenu.cheats.GameMenuCheatsScreen
 import com.swordfish.lemuroid.app.mobile.feature.gamemenu.coreoptions.GameMenuCoreOptionsScreen
 import com.swordfish.lemuroid.app.mobile.feature.gamemenu.coreoptions.GameMenuCoreOptionsViewModel
 import com.swordfish.lemuroid.app.mobile.feature.gamemenu.states.GameMenuStatesScreen
@@ -69,6 +70,8 @@ class GameMenuActivity : RetrogradeComponentActivity() {
 
     @Inject
     lateinit var statesPreviewManager: StatesPreviewManager
+
+    private var cheatsUpdated: Boolean = false
 
     data class GameMenuRequest(
         val coreOptions: List<LemuroidCoreOption>,
@@ -226,6 +229,14 @@ class GameMenuActivity : RetrogradeComponentActivity() {
                             gameMenuRequest,
                         )
                     }
+                    composable(GameMenuRoute.CHEATS) {
+                        GameMenuCheatsScreen(
+                            game = gameMenuRequest.game,
+                            onCheatsUpdated = {
+                                cheatsUpdated = true
+                            },
+                        )
+                    }
                 }
             }
         }
@@ -260,8 +271,21 @@ class GameMenuActivity : RetrogradeComponentActivity() {
     private fun onResult(block: Intent.() -> Unit) {
         val resultIntent = Intent()
         resultIntent.block()
+        if (cheatsUpdated) {
+            resultIntent.putExtra(GameMenuContract.RESULT_CHEATS_UPDATED, true)
+        }
         setResult(RESULT_OK, resultIntent)
         finish()
+    }
+
+    override fun finish() {
+        if (cheatsUpdated) {
+            val resultIntent = Intent().apply {
+                putExtra(GameMenuContract.RESULT_CHEATS_UPDATED, true)
+            }
+            setResult(RESULT_OK, resultIntent)
+        }
+        super.finish()
     }
 
     @dagger.Module

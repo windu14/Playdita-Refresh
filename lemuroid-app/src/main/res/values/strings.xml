@@ -136,6 +136,21 @@
     <string name="game_menu_fast_forward">Percepat</string>
     <string name="game_menu_change_disk_disk">Disket %1$s</string>
     <string name="game_menu_tilt_sensor">Sensor Kemiringan</string>
+    <string name="game_menu_cheats">Cheat Codes</string>
+    <string name="cheat_add_title">Tambah Kode Cheat</string>
+    <string name="cheat_edit_title">Edit Kode Cheat</string>
+    <string name="cheat_name_label">Nama Cheat</string>
+    <string name="cheat_name_hint">Contoh: Master Ball x99</string>
+    <string name="cheat_code_label">Kode Cheat</string>
+    <string name="cheat_code_hint">Masukkan kode GameShark / Action Replay / CodeBreaker</string>
+    <string name="cheat_save">Simpan Cheat</string>
+    <string name="cheat_cancel">Batal</string>
+    <string name="cheat_delete">Hapus</string>
+    <string name="cheat_empty_title">Belum Ada Kode Cheat</string>
+    <string name="cheat_empty_desc">Tambahkan kode GameShark, Action Replay, atau CodeBreaker untuk game ini.</string>
+    <string name="cheat_add_button">Tambah Cheat Baru</string>
+    <string name="cheat_active_status">%1$d aktif</string>
+    <string name="cheat_format_hint">Multi-baris didukung secara otomatis.</string>
 
     <string name="game_loading_preparing_game">Menyiapkan game…</string>
 
