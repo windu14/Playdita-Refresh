@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.swordfish.lemuroid.lib.library.db.entity.Game
 import com.swordfish.libretrodroid.GLRetroView
-import com.swordfish.libretrodroid.LibretroDroid
 import org.json.JSONArray
 import org.json.JSONObject
 import timber.log.Timber
@@ -89,6 +88,7 @@ class CheatManager(context: Context) {
 
     /**
      * Applies all stored cheats to the running GLRetroView emulator core.
+     * Safely executes non-blockingly on the emulation thread.
      */
     fun applyCheatsToEmulator(game: Game, retroView: GLRetroView?) {
         if (retroView == null) {
@@ -96,24 +96,19 @@ class CheatManager(context: Context) {
             return
         }
 
-        try {
-            LibretroDroid.resetCheat()
-        } catch (t: Throwable) {
-            Timber.w(t, "LibretroDroid.resetCheat() call failed")
-        }
-
         val cheats = getCheats(game)
         Timber.i("Applying ${cheats.size} cheats to emulator for game: ${game.title}")
 
         cheats.forEachIndexed { index, cheat ->
             val formatted = cheat.formattedCode
-            if (cheat.enabled && formatted.isNotEmpty()) {
-                Timber.d("Setting cheat #$index [${cheat.title}]: enabled=true, code=$formatted")
-                retroView.setCheat(index, true, formatted, true)
-            } else {
-                Timber.d("Setting cheat #$index [${cheat.title}]: enabled=false")
-                retroView.setCheat(index, false, formatted.ifEmpty { "00000000" }, true)
+            if (formatted.isNotEmpty()) {
+                Timber.d("Setting cheat #$index [${cheat.title}]: enabled=${cheat.enabled}, code=$formatted")
+                retroView.setCheat(index, cheat.enabled, formatted, false)
             }
+        }
+        // Disable extra cheat slots if cheats were removed or shortened
+        for (i in cheats.size until (cheats.size + 10).coerceAtMost(32)) {
+            retroView.setCheat(i, false, "", false)
         }
     }
 }

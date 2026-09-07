@@ -85,6 +85,10 @@ class GameLoader(
 
                 emit(LoadingState.LoadingGame)
 
+                runCatching {
+                    biosManager.syncBiosFromAssets()
+                }
+
                 val missingBiosFiles = biosManager.getMissingBiosFiles(systemCoreConfig, game)
                 if (missingBiosFiles.isNotEmpty()) {
                     throw GameLoaderException(GameLoaderError.MissingBiosFiles(missingBiosFiles))
@@ -122,22 +126,6 @@ class GameLoader(
                             null
                         }
                     }.getOrElse { throw GameLoaderException(GameLoaderError.Saves) }
-
-                val rawCoreVariables =
-                    coreVariablesManager.getOptionsForCore(system.id, systemCoreConfig).toMutableList()
-
-                if (systemCoreConfig.coreID == CoreID.MGBA) {
-                    rawCoreVariables.removeAll { it.key == "mgba_use_bios" || it.key == "mgba_skip_bios" }
-                    if (bootBiosEnabled) {
-                        rawCoreVariables.add(CoreVariable("mgba_use_bios", "ON"))
-                        rawCoreVariables.add(CoreVariable("mgba_skip_bios", "OFF"))
-                    } else {
-                        rawCoreVariables.add(CoreVariable("mgba_use_bios", "OFF"))
-                        rawCoreVariables.add(CoreVariable("mgba_skip_bios", "ON"))
-                    }
-                }
-
-                val coreVariables = rawCoreVariables.toTypedArray()
 
                 val systemDirectory = directoriesManager.getSystemDirectory()
                 val savesDirectory = directoriesManager.getSavesDirectory()
@@ -179,6 +167,23 @@ class GameLoader(
                         }
                     }
                 }
+
+                val rawCoreVariables =
+                    coreVariablesManager.getOptionsForCore(system.id, systemCoreConfig).toMutableList()
+
+                if (systemCoreConfig.coreID == CoreID.MGBA) {
+                    rawCoreVariables.removeAll { it.key == "mgba_use_bios" || it.key == "mgba_skip_bios" }
+                    val gbaBiosExists = biosFile.exists() && biosFile.length() > 0L
+                    if (bootBiosEnabled && gbaBiosExists) {
+                        rawCoreVariables.add(CoreVariable("mgba_use_bios", "ON"))
+                        rawCoreVariables.add(CoreVariable("mgba_skip_bios", "OFF"))
+                    } else {
+                        rawCoreVariables.add(CoreVariable("mgba_use_bios", "OFF"))
+                        rawCoreVariables.add(CoreVariable("mgba_skip_bios", "ON"))
+                    }
+                }
+
+                val coreVariables = rawCoreVariables.toTypedArray()
 
                 emit(
                     LoadingState.Ready(

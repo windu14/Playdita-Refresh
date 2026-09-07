@@ -41,6 +41,7 @@ import com.swordfish.lemuroid.lib.saves.SavesManager
 import com.swordfish.lemuroid.lib.saves.StatesManager
 import com.swordfish.lemuroid.lib.saves.StatesPreviewManager
 import com.swordfish.touchinput.radial.sensors.TiltConfiguration
+import com.swordfish.libretrodroid.GLRetroView
 import dagger.Lazy
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -136,9 +137,18 @@ abstract class BaseGameActivity : ImmersiveActivity() {
                 gameLoader,
                 intent.getBooleanExtra(EXTRA_LOAD_SAVE, false),
             )
-            runCatching {
-                val retroView = baseGameScreenViewModel.retroGameView.retroGameViewFlow()
-                CheatManager(applicationContext).applyCheatsToEmulator(game, retroView)
+
+            // Only apply cheats after the core is completely loaded, initialized, and rendered first frame
+            val cheatManager = CheatManager(applicationContext)
+            val cheats = cheatManager.getCheats(game)
+            if (cheats.any { it.enabled }) {
+                runCatching {
+                    baseGameScreenViewModel.retroGameView.waitGLEvent<GLRetroView.GLRetroEvents.FrameRendered>()
+                    val retroView = baseGameScreenViewModel.retroGameView.retroGameView
+                    cheatManager.applyCheatsToEmulator(game, retroView)
+                }.onFailure {
+                    Timber.w(it, "Failed to apply cheats on startup")
+                }
             }
         }
 
