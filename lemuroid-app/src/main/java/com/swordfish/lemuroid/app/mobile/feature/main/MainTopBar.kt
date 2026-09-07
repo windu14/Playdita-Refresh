@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.swordfish.lemuroid.R
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ContainedLoadingIndicator
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ExperimentalMaterial3ExpressiveApi
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ExpressiveLinearProgressIndicator
 import com.swordfish.lemuroid.app.shared.savesync.SaveSyncWork
@@ -160,6 +161,7 @@ fun LemuroidTopAppBar(
     )
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun LemuroidTopBarActions(
     route: MainRoute,
@@ -170,9 +172,14 @@ fun LemuroidTopBarActions(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
         modifier = Modifier.padding(end = 8.dp),
     ) {
+        if (operationsInProgress) {
+            ContainedLoadingIndicator(
+                modifier = Modifier.size(34.dp),
+            )
+        }
         if (saveSyncEnabled) {
             IconButton(
                 onClick = { SaveSyncWork.enqueueManualWork(context.applicationContext) },

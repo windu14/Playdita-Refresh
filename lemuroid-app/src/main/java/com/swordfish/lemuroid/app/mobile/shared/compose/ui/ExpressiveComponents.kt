@@ -14,7 +14,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -35,12 +37,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -144,26 +148,35 @@ class RoundedPolygon(
 }
 
 /**
- * Default configurations for Material 3 Expressive LoadingIndicator.
+ * Default configurations for Material 3 Expressive LoadingIndicator and ContainedLoadingIndicator.
  */
 object LoadingIndicatorDefaults {
     val indicatorColor: Color
         @Composable get() = MaterialTheme.colorScheme.primary
 
-    val containerColor: Color
+    val containedIndicatorColor: Color
+        @Composable get() = MaterialTheme.colorScheme.primary
+
+    val containedContainerColor: Color
         @Composable get() = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.55f)
 
+    val containerColor: Color
+        @Composable get() = containedContainerColor
+
+    val containerShape: Shape = CircleShape
+
     val IndeterminateIndicatorPolygons: List<RoundedPolygon> = listOf(
-        RoundedPolygon.star(numVertices = 10, innerRadius = 0.72f, rounding = 0.5f), // 10-scallop starburst
-        RoundedPolygon.clover(numVertices = 8, innerRadius = 0.80f, rounding = 0.5f),
-        RoundedPolygon.circle(),
-        RoundedPolygon.squircle(cornerRounding = 0.6f),
-        RoundedPolygon.star(numVertices = 12, innerRadius = 0.76f, rounding = 0.5f),
+        RoundedPolygon.star(numVertices = 10, innerRadius = 0.65f, rounding = 0.6f), // 10-scallop soft burst
+        RoundedPolygon.clover(numVertices = 4, innerRadius = 0.60f, rounding = 0.7f), // 4-leaf cookie/clover
+        RoundedPolygon.circle(), // Circle
+        RoundedPolygon.squircle(cornerRounding = 0.6f), // Squircle
+        RoundedPolygon.clover(numVertices = 8, innerRadius = 0.75f, rounding = 0.5f), // 8-leaf flower / puffy
+        RoundedPolygon.star(numVertices = 12, innerRadius = 0.75f, rounding = 0.5f), // 12-scallop burst
     )
 
     val DeterminateIndicatorPolygons: List<RoundedPolygon> = listOf(
         RoundedPolygon.circle(),
-        RoundedPolygon.star(numVertices = 10, innerRadius = 0.72f, rounding = 0.5f),
+        RoundedPolygon.star(numVertices = 10, innerRadius = 0.65f, rounding = 0.6f),
     )
 }
 
@@ -338,6 +351,106 @@ fun LoadingIndicator(
         drawPath(
             path = path,
             color = color,
+        )
+    }
+}
+
+/**
+ * Official Material 3 Expressive ContainedLoadingIndicator.
+ * Encloses the morphing shape loading indicator inside an expressive colored container.
+ */
+@ExperimentalMaterial3ExpressiveApi
+@Composable
+fun ContainedLoadingIndicator(
+    modifier: Modifier = Modifier,
+    containerColor: Color = LoadingIndicatorDefaults.containedContainerColor,
+    indicatorColor: Color = LoadingIndicatorDefaults.containedIndicatorColor,
+    containerShape: Shape = LoadingIndicatorDefaults.containerShape,
+    polygons: List<RoundedPolygon> = LoadingIndicatorDefaults.IndeterminateIndicatorPolygons,
+) {
+    val containerModifier = if (modifier == Modifier) Modifier.size(48.dp) else modifier
+
+    Surface(
+        modifier = containerModifier,
+        shape = containerShape,
+        color = containerColor,
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            LoadingIndicator(
+                modifier = Modifier.fillMaxSize(0.68f),
+                color = indicatorColor,
+                polygons = polygons,
+                containerColor = null,
+            )
+        }
+    }
+}
+
+/**
+ * Determinate Material 3 Expressive ContainedLoadingIndicator.
+ */
+@ExperimentalMaterial3ExpressiveApi
+@Composable
+fun ContainedLoadingIndicator(
+    progress: () -> Float,
+    modifier: Modifier = Modifier,
+    containerColor: Color = LoadingIndicatorDefaults.containedContainerColor,
+    indicatorColor: Color = LoadingIndicatorDefaults.containedIndicatorColor,
+    containerShape: Shape = LoadingIndicatorDefaults.containerShape,
+    polygons: List<RoundedPolygon> = LoadingIndicatorDefaults.DeterminateIndicatorPolygons,
+) {
+    val containerModifier = if (modifier == Modifier) Modifier.size(48.dp) else modifier
+
+    Surface(
+        modifier = containerModifier,
+        shape = containerShape,
+        color = containerColor,
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            LoadingIndicator(
+                progress = progress,
+                modifier = Modifier.fillMaxSize(0.68f),
+                color = indicatorColor,
+                polygons = polygons,
+                containerColor = null,
+            )
+        }
+    }
+}
+
+/**
+ * Preview demonstrating Material 3 Expressive LoadingIndicator and ContainedLoadingIndicator
+ * as per official Android guidelines.
+ */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Preview(showBackground = true)
+@Composable
+fun LoadingIndicatorPreview() {
+    Column(
+        Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        // Default
+        LoadingIndicator()
+
+        // With 2 shapes only
+        LoadingIndicator(
+            polygons = LoadingIndicatorDefaults.IndeterminateIndicatorPolygons.take(2),
+        )
+
+        // Default
+        ContainedLoadingIndicator()
+
+        // Custom Container Color
+        ContainedLoadingIndicator(
+            containerColor = Color.Cyan,
         )
     }
 }

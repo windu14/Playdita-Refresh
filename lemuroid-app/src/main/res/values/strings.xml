@@ -239,4 +239,13 @@
     <string name="tilt_configuration_buttons_l1_r1">L1 - R1</string>
     <string name="tilt_configuration_buttons_l2_r2">L2 - R2</string>
 
+    <string name="home_search_placeholder">Cari judul game...</string>
+    <string name="home_search_results_title">Hasil Pencarian</string>
+    <string name="home_search_count_format">%1$d game ditemukan</string>
+    <string name="home_search_no_results_title">Game Tidak Ditemukan</string>
+    <string name="home_search_no_results_desc">Tidak ada game yang cocok dengan \"%1$s\"</string>
+    <string name="home_search_clear">Hapus Pencarian</string>
+    <string name="home_indexing_title">Memindai Game</string>
+    <string name="home_indexing_desc">Sedang menyinkronkan pustaka game Anda...</string>
+
 </resources>
