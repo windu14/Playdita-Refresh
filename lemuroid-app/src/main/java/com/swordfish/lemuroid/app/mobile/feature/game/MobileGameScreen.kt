@@ -1,6 +1,7 @@
 package com.swordfish.lemuroid.app.mobile.feature.game
 
 import android.graphics.RectF
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Height
 import androidx.compose.material.icons.filled.OpenInFull
@@ -37,9 +39,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -51,6 +56,10 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.swordfish.lemuroid.app.shared.game.GameBackgroundThemeManager
+import java.io.File
 import com.swordfish.lemuroid.app.utils.android.settings.booleanPreferenceState
 import com.swordfish.lemuroid.app.shared.game.BaseGameScreenViewModel
 import com.swordfish.lemuroid.app.shared.game.viewmodel.GameViewModelTouchControls.Companion.MENU_LOADING_ANIMATION_MILLIS
@@ -112,6 +121,18 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                 HapticFeedbackMode.PRESS_RELEASE -> HapticFeedbackType.PRESS_RELEASE
             }
 
+        val localContext = LocalContext.current
+        val lifecycle = LocalLifecycleOwner.current
+
+        LaunchedEffect(Unit) {
+            GameBackgroundThemeManager.init(localContext)
+        }
+        val backgroundUpdateKey by GameBackgroundThemeManager.backgroundUpdateFlow.collectAsState()
+        val hasCustomBackground by GameBackgroundThemeManager.hasCustomBackgroundFlow.collectAsState()
+        val customBackgroundFile = remember(backgroundUpdateKey, hasCustomBackground) {
+            if (hasCustomBackground) GameBackgroundThemeManager.getBackgroundFile(localContext) else null
+        }
+
         PadKit(
             modifier = Modifier.fillMaxSize(),
             onInputEvents = { viewModel.handleVirtualInputEvent(it) },
@@ -119,9 +140,6 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
             simulatedState = tiltSimulatedStates,
             simulatedControlIds = tiltSimulatedControls,
         ) {
-            val localContext = LocalContext.current
-            val lifecycle = LocalLifecycleOwner.current
-
             val fullScreenPosition = remember { mutableStateOf<Rect?>(null) }
             val viewportPosition = remember { mutableStateOf<Rect?>(null) }
 
@@ -177,13 +195,19 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                         if (!isLandscape) {
                             PadContainer(
                                 modifier = Modifier.layoutId(GameScreenLayout.CONSTRAINTS_BOTTOM_CONTAINER),
+                                customBackgroundFile = customBackgroundFile,
+                                backgroundUpdateKey = backgroundUpdateKey,
                             )
                         } else if (!currentControllerConfig.allowTouchOverlay) {
                             PadContainer(
                                 modifier = Modifier.layoutId(GameScreenLayout.CONSTRAINTS_LEFT_CONTAINER),
+                                customBackgroundFile = customBackgroundFile,
+                                backgroundUpdateKey = backgroundUpdateKey,
                             )
                             PadContainer(
                                 modifier = Modifier.layoutId(GameScreenLayout.CONSTRAINTS_RIGHT_CONTAINER),
+                                customBackgroundFile = customBackgroundFile,
+                                backgroundUpdateKey = backgroundUpdateKey,
                             )
                         }
 
@@ -228,15 +252,49 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
 }
 
 @Composable
-private fun PadContainer(modifier: Modifier = Modifier) {
+private fun PadContainer(
+    modifier: Modifier = Modifier,
+    customBackgroundFile: File? = null,
+    backgroundUpdateKey: Long = 0L,
+) {
     val theme = LocalLemuroidPadTheme.current
-    GlassSurface(
-        modifier = modifier,
-        cornerRadius = theme.level0CornerRadius,
-        fillColor = theme.level0Fill,
-        shadowColor = theme.level0Shadow,
-        shadowWidth = theme.level0ShadowWidth,
-    )
+    val hasCustomBackground = customBackgroundFile != null && customBackgroundFile.exists()
+
+    Box(
+        modifier = modifier.clip(
+            RoundedCornerShape(
+                topStart = theme.level0CornerRadius,
+                topEnd = theme.level0CornerRadius,
+            )
+        )
+    ) {
+        if (hasCustomBackground) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(customBackgroundFile)
+                    .memoryCacheKey("game_bg_$backgroundUpdateKey")
+                    .crossfade(true)
+                    .build(),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+            )
+            // Subtle dark overlay to ensure touch controls (buttons & DPad) stay clear and readable
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.28f))
+            )
+        }
+
+        GlassSurface(
+            modifier = Modifier.fillMaxSize(),
+            cornerRadius = theme.level0CornerRadius,
+            fillColor = if (hasCustomBackground) Color.Transparent else theme.level0Fill,
+            shadowColor = theme.level0Shadow,
+            shadowWidth = theme.level0ShadowWidth,
+        )
+    }
 }
 
 @Composable

@@ -153,6 +153,21 @@
     <string name="cheat_format_hint">Format didukung: CodeBreaker (82XXXXXX YYYY) atau GameShark (XXXXXXXX YYYYYYYY). Multi-baris didukung.</string>
     <string name="cheat_invalid_format">Format kode tidak valid. Gunakan format CodeBreaker (82XXXXXX YYYY) atau GameShark (XXXXXXXX YYYYYYYY).</string>
 
+    <!-- Background Theme Strings -->
+    <string name="game_menu_background_theme">Tema Background</string>
+    <string name="game_menu_background_theme_custom">Kustom Aktif</string>
+    <string name="game_menu_background_theme_default">Default (Hitam)</string>
+    <string name="background_theme_pick_gallery">Pilih Gambar dari Galeri</string>
+    <string name="background_theme_reset">Reset Background</string>
+    <string name="background_theme_applied">Tema background berhasil diterapkan!</string>
+    <string name="background_theme_reset_success">Background dikembalikan ke default.</string>
+    <string name="background_theme_error">Gagal memuat gambar yang dipilih.</string>
+    <string name="background_theme_desc">Pilih gambar dari galeri HP Anda (JPG, PNG, dll.) untuk menggantikan latar belakang hitam polos saat bermain game.</string>
+    <string name="background_theme_preview_title">Pratinjau Background</string>
+    <string name="background_theme_status_active">Background kustom sedang aktif</string>
+    <string name="background_theme_status_default">Menggunakan tema default (hitam polos)</string>
+    <string name="background_theme_active_badge">Aktif</string>
+
     <string name="game_loading_preparing_game">Menyiapkan game…</string>
 
     <string name="game_toast_settings_button_using_gamepad">Gamepad terdeteksi. Buka menu pengaturan dengan %1$s.</string>

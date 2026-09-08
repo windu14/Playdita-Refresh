@@ -9,6 +9,8 @@ import androidx.compose.material.icons.filled.Sensors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -18,6 +20,7 @@ import com.alorma.compose.settings.storage.memory.rememberMemoryIntSettingState
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.feature.gamemenu.tilt.TiltConfigurationMenuEntry
 import com.swordfish.lemuroid.app.shared.GameMenuContract
+import com.swordfish.lemuroid.app.shared.game.GameBackgroundThemeManager
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsList
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsMenuLink
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsSwitch
@@ -150,6 +153,27 @@ fun GameMenuHomeScreen(
             onClick = {
                 onResult { putExtra(GameMenuContract.RESULT_EDIT_TOUCH_CONTROLS, true) }
             },
+        )
+
+        val hasCustomBg by GameBackgroundThemeManager.hasCustomBackgroundFlow.collectAsState()
+        LemuroidSettingsMenuLink(
+            title = { Text(text = stringResource(id = R.string.game_menu_background_theme)) },
+            subtitle = {
+                Text(
+                    text = if (hasCustomBg) {
+                        stringResource(R.string.game_menu_background_theme_custom)
+                    } else {
+                        stringResource(R.string.game_menu_background_theme_default)
+                    },
+                )
+            },
+            icon = {
+                Icon(
+                    painterResource(R.drawable.ic_menu_image),
+                    contentDescription = stringResource(id = R.string.game_menu_background_theme),
+                )
+            },
+            onClick = { navController.navigateToRoute(GameMenuRoute.BACKGROUND) },
         )
 
         if (gameMenuRequest.advancedCoreOptions.isNotEmpty() || gameMenuRequest.coreOptions.isNotEmpty()) {
