@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.swordfish.lemuroid.lib.library.db.entity.Game
 import com.swordfish.libretrodroid.GLRetroView
+import com.swordfish.libretrodroid.LibretroDroid
 import org.json.JSONArray
 import org.json.JSONObject
 import timber.log.Timber
@@ -88,7 +89,8 @@ class CheatManager(context: Context) {
 
     /**
      * Applies all stored cheats to the running GLRetroView emulator core.
-     * Safely executes non-blockingly on the emulation thread.
+     * Safely executes on the emulation GLThread via queueEvent to ensure
+     * synchronization with libretro core lifecycle and frame execution.
      */
     fun applyCheatsToEmulator(game: Game, retroView: GLRetroView?) {
         if (retroView == null) {
@@ -97,18 +99,33 @@ class CheatManager(context: Context) {
         }
 
         val cheats = getCheats(game)
-        Timber.i("Applying ${cheats.size} cheats to emulator for game: ${game.title}")
+        val enabledCheats = cheats.filter { it.enabled }
+        Timber.i("Applying cheats to emulator for game '${game.title}': total=${cheats.size}, enabled=${enabledCheats.size}")
 
-        cheats.forEachIndexed { index, cheat ->
-            val formatted = cheat.formattedCode
-            if (formatted.isNotEmpty()) {
-                Timber.d("Setting cheat #$index [${cheat.title}]: enabled=${cheat.enabled}, code=$formatted")
-                retroView.setCheat(index, cheat.enabled, formatted, false)
+        // Critical: Native calls to resetCheat and setCheat MUST run on GLSurfaceView's GLThread.
+        // Running on the main UI thread causes race conditions or crashes with native core.
+        // In addition, mGBA's retro_cheat_set ignores the 'enabled' parameter, so:
+        // 1. We must call LibretroDroid.resetCheat() to clear any previous cheat list.
+        // 2. We only send cheats where enabled == true.
+        retroView.queueEvent {
+            try {
+                Timber.d("Resetting cheats on emulation thread...")
+                LibretroDroid.resetCheat()
+
+                var slotIndex = 0
+                enabledCheats.forEach { cheat ->
+                    val lines = cheat.normalizedLines
+                    if (lines.isNotEmpty()) {
+                        // mGBA supports multiline cheats joined with '+'
+                        val joinedCode = lines.joinToString("+")
+                        Timber.d("Setting cheat slot #$slotIndex [${cheat.title}]: $joinedCode")
+                        LibretroDroid.setCheat(slotIndex++, true, joinedCode)
+                    }
+                }
+                Timber.i("Successfully applied $slotIndex cheat(s) to emulator core")
+            } catch (t: Throwable) {
+                Timber.e(t, "Error applying cheats on emulation thread")
             }
-        }
-        // Disable extra cheat slots if cheats were removed or shortened
-        for (i in cheats.size until (cheats.size + 10).coerceAtMost(32)) {
-            retroView.setCheat(i, false, "", false)
         }
     }
 }

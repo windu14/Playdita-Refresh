@@ -364,6 +364,11 @@ private fun CheatEditDialog(
                         errorText = "Kode cheat tidak boleh kosong"
                         return@Button
                     }
+                    val testCheat = GbaCheat(title = trimmedTitle, code = trimmedCode)
+                    if (testCheat.normalizedLines.isEmpty()) {
+                        errorText = "Format kode tidak valid. Gunakan format CodeBreaker (82XXXXXX YYYY) atau GameShark (XXXXXXXX YYYYYYYY)."
+                        return@Button
+                    }
                     onSave(trimmedTitle, trimmedCode)
                 },
             ) {
