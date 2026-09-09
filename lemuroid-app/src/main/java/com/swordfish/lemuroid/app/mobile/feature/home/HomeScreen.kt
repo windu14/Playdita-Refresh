@@ -374,40 +374,39 @@ private fun HomeRecentCarousel(
             }
         }
 
-        // Stacked Cards Carousel: smooth overlap, tactile micro-rotation & depth on swipe
+        // Nintendo Switch style Carousel: clean gap, bouncy scale, and glowing active border
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(274.dp),
-            contentPadding = PaddingValues(horizontal = 68.dp),
-            pageSpacing = (-24).dp,
+                .height(288.dp),
+            contentPadding = PaddingValues(horizontal = 72.dp),
+            pageSpacing = 16.dp,
         ) { page ->
             val game = games[page]
             val pageOffset = ((pagerState.currentPage - page) + pagerState.currentPageOffsetFraction)
-            val absOffset = pageOffset.absoluteValue.coerceIn(0f, 2.5f)
+            val absOffset = pageOffset.absoluteValue.coerceIn(0f, 2.0f)
+            val isCurrent = pagerState.currentPage == page
 
-            val scale = (1f - (absOffset * 0.09f)).coerceIn(0.85f, 1f)
-            val alpha = (1f - (absOffset * 0.15f)).coerceIn(0.72f, 1f)
-            val rotationZ = (-pageOffset * 2.0f).coerceIn(-4.5f, 4.5f)
-            val translationY = (absOffset * 3.dp.value)
+            // Bouncy scale & subtle fade for non-active cards
+            val scale = (1.04f - (absOffset * 0.12f)).coerceIn(0.88f, 1.04f)
+            val alpha = (1.0f - (absOffset * 0.30f)).coerceIn(0.68f, 1.0f)
 
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .zIndex(10f - absOffset)
+                    .zIndex(if (isCurrent) 10f else 1f - absOffset)
                     .graphicsLayer {
                         this.scaleX = scale
                         this.scaleY = scale
                         this.alpha = alpha
-                        this.rotationZ = rotationZ
-                        this.translationY = translationY
                     },
                 contentAlignment = Alignment.Center,
             ) {
                 LemuroidGameCard(
-                    modifier = Modifier.width(190.dp),
+                    modifier = Modifier.width(196.dp),
                     game = game,
+                    isSelected = isCurrent,
                     onClick = { onGameClicked(game) },
                     onLongClick = { onGameLongClick(game) },
                 )

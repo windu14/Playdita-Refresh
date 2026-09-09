@@ -65,6 +65,7 @@ import com.swordfish.lemuroid.app.shared.game.BackgroundSlot
 import com.swordfish.lemuroid.app.shared.game.BackgroundThemeMode
 import com.swordfish.lemuroid.app.shared.game.GameBackgroundThemeManager
 import com.swordfish.lemuroid.app.shared.game.GameScreenSettingsManager
+import com.swordfish.lemuroid.app.shared.game.RetroShaderManager
 import com.swordfish.lemuroid.app.shared.game.TouchButtonSkinManager
 import java.io.File
 import com.swordfish.lemuroid.app.utils.android.settings.booleanPreferenceState
@@ -136,8 +137,15 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
             GameBackgroundThemeManager.init(localContext)
             GameScreenSettingsManager.init(localContext)
             TouchButtonSkinManager.init(localContext)
+            RetroShaderManager.init(localContext)
         }
-        val touchSkin by TouchButtonSkinManager.skinFlow.collectAsState()
+        val activePadTheme by TouchButtonSkinManager.activeThemeFlow.collectAsState()
+        val currentFilter by RetroShaderManager.filterFlow.collectAsState()
+
+        LaunchedEffect(currentFilter) {
+            viewModel.updateShader(currentFilter)
+        }
+
         val backgroundUpdateKey by GameBackgroundThemeManager.backgroundUpdateFlow.collectAsState()
         val themeMode by GameBackgroundThemeManager.themeModeFlow.collectAsState()
         val screenSettings by GameScreenSettingsManager.screenSettingsFlow.collectAsState()
@@ -288,7 +296,7 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                             touchControlsVisibleState.value
 
                     if (isVisible) {
-                        CompositionLocalProvider(LocalLemuroidPadTheme provides touchSkin.toTheme()) {
+                        CompositionLocalProvider(LocalLemuroidPadTheme provides activePadTheme) {
                             if (!isLandscape) {
                                 PadContainer(
                                     modifier = Modifier.layoutId(GameScreenLayout.CONSTRAINTS_BOTTOM_CONTAINER),

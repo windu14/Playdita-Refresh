@@ -294,6 +294,20 @@
     <string name="touch_skin_classic">Kaca Klasik (Transparan Putih)</string>
     <string name="touch_skin_dark">Kaca Gelap (Smoked Dark)</string>
     <string name="touch_skin_pink">Pastel Retro (Neon Pink)</string>
+    <string name="touch_skin_cyan">Cyber Aqua (Neon Cyan)</string>
+    <string name="touch_skin_emerald">Emerald Mint (Hijau Lime)</string>
+    <string name="touch_skin_amber">Sunset Gold (Kuning Amber)</string>
+    <string name="touch_skin_violet">Ultra Violet (Ungu Retro)</string>
+    <string name="touch_skin_custom">Pilihan Bebas (Roda Warna / Color Picker)</string>
+    <string name="title_shop">Shop</string>
+    <string name="shop_subtitle">Dapatkan Skin Eksklusif &amp; Aksesoris Retro</string>
+    <string name="shop_coming_soon">Segera Hadir</string>
+    <string name="shop_feature_skins">Skin Tombol Khusus</string>
+    <string name="shop_feature_skins_desc">Beragam tema transparan, neon, dan retro handheld.</string>
+    <string name="shop_feature_shaders">Paket Shader Eksklusif</string>
+    <string name="shop_feature_shaders_desc">Simulasi CRT Trinitron, Game Boy DMG, dan scanline presisi.</string>
+    <string name="shop_open_web">Buka Toko Web</string>
+    <string name="shop_open_web_desc">Pratinjau in-app browser untuk web shop</string>
 
     <string name="haptic_feedback_mode_names_none">Tidak Ada</string>
     <string name="haptic_feedback_mode_names_press">Saat Ditekan</string>

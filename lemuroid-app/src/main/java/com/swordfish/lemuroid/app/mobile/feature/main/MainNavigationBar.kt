@@ -41,6 +41,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -240,12 +241,23 @@ private fun ExpressiveNavTab(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            Icon(
-                imageVector = if (isSelected) destination.selectedIcon else destination.unselectedIcon,
-                contentDescription = stringResource(destination.titleId),
-                tint = contentColor,
-                modifier = Modifier.size(if (isCenter) 23.dp else 21.dp),
-            )
+            val iconVec = if (isSelected) destination.selectedIcon else destination.unselectedIcon
+            val iconRes = if (isSelected) destination.selectedDrawableRes else destination.unselectedDrawableRes ?: destination.selectedDrawableRes
+            if (iconVec != null) {
+                Icon(
+                    imageVector = iconVec,
+                    contentDescription = stringResource(destination.titleId),
+                    tint = contentColor,
+                    modifier = Modifier.size(if (isCenter) 23.dp else 21.dp),
+                )
+            } else if (iconRes != null) {
+                Icon(
+                    painter = painterResource(iconRes),
+                    contentDescription = stringResource(destination.titleId),
+                    tint = contentColor,
+                    modifier = Modifier.size(if (isCenter) 23.dp else 21.dp),
+                )
+            }
             Text(
                 text = stringResource(destination.titleId),
                 style = MaterialTheme.typography.labelSmall.copy(

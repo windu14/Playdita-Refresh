@@ -1,11 +1,17 @@
 package com.swordfish.lemuroid.app.mobile.feature.gamemenu
 
 import android.content.Intent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AspectRatio
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Sensors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -13,11 +19,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.preference.PreferenceManager
 import com.alorma.compose.settings.storage.memory.rememberMemoryBooleanSettingState
@@ -28,6 +39,7 @@ import com.swordfish.lemuroid.app.shared.GameMenuContract
 import com.swordfish.lemuroid.app.shared.game.BackgroundThemeMode
 import com.swordfish.lemuroid.app.shared.game.GameBackgroundThemeManager
 import com.swordfish.lemuroid.app.shared.game.GameScreenSettingsManager
+import com.swordfish.lemuroid.app.shared.game.RetroShaderManager
 import com.swordfish.lemuroid.app.shared.game.TouchButtonSkin
 import com.swordfish.lemuroid.app.shared.game.TouchButtonSkinManager
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsList
@@ -167,9 +179,12 @@ fun GameMenuHomeScreen(
         val context = LocalContext.current
         LaunchedEffect(Unit) {
             TouchButtonSkinManager.init(context)
+            RetroShaderManager.init(context)
         }
 
+        var showColorPicker by remember { mutableStateOf(false) }
         val touchSkin by TouchButtonSkinManager.skinFlow.collectAsState()
+        val customColor by TouchButtonSkinManager.customColorFlow.collectAsState()
         val touchSkinEntries = remember { TouchButtonSkin.values() }
         val touchSkinIndex = touchSkinEntries.indexOf(touchSkin).coerceAtLeast(0)
 
@@ -185,9 +200,42 @@ fun GameMenuHomeScreen(
             },
             state = rememberMemoryIntSettingState(touchSkinIndex),
             onItemSelected = { index, _ ->
-                TouchButtonSkinManager.setSkin(context, touchSkinEntries[index])
+                val selectedSkin = touchSkinEntries[index]
+                TouchButtonSkinManager.setSkin(context, selectedSkin)
+                if (selectedSkin == TouchButtonSkin.CUSTOM) {
+                    showColorPicker = true
+                }
             },
         )
+
+        if (touchSkin == TouchButtonSkin.CUSTOM) {
+            LemuroidSettingsMenuLink(
+                title = { Text(text = "Sesuaikan Roda Warna") },
+                subtitle = { Text(text = "Sentuh untuk memilih warna & intensitas bebas") },
+                icon = {
+                    Box(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clip(CircleShape)
+                            .background(Color(customColor))
+                            .border(1.5.dp, Color.White, CircleShape),
+                    )
+                },
+                onClick = { showColorPicker = true },
+            )
+        }
+
+        if (showColorPicker) {
+            TouchButtonColorPickerDialog(
+                initialColorLong = customColor,
+                onColorSelected = { newColor ->
+                    TouchButtonSkinManager.setCustomColor(context, newColor)
+                    TouchButtonSkinManager.setSkin(context, TouchButtonSkin.CUSTOM)
+                    showColorPicker = false
+                },
+                onDismiss = { showColorPicker = false },
+            )
+        }
 
         val filterValues = remember {
             context.resources.getStringArray(R.array.pref_key_shader_filter_values)
@@ -195,15 +243,7 @@ fun GameMenuHomeScreen(
         val filterDisplayNames = remember {
             context.resources.getStringArray(R.array.pref_key_shader_filter_display_names)
         }
-        val prefs = remember {
-            PreferenceManager.getDefaultSharedPreferences(context)
-        }
-        val currentFilter = remember {
-            prefs.getString(
-                context.getString(R.string.pref_key_shader_filter),
-                filterValues.first()
-            ) ?: filterValues.first()
-        }
+        val currentFilter by RetroShaderManager.filterFlow.collectAsState()
         val currentFilterIndex = filterValues.indexOf(currentFilter).coerceAtLeast(0)
 
         LemuroidSettingsList(
@@ -218,12 +258,7 @@ fun GameMenuHomeScreen(
             },
             state = rememberMemoryIntSettingState(currentFilterIndex),
             onItemSelected = { index, _ ->
-                prefs.edit()
-                    .putString(
-                        context.getString(R.string.pref_key_shader_filter),
-                        filterValues[index]
-                    )
-                    .apply()
+                RetroShaderManager.setFilter(context, filterValues[index])
             },
         )
 

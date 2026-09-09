@@ -48,6 +48,7 @@ import com.swordfish.lemuroid.app.mobile.feature.settings.inputdevices.InputDevi
 import com.swordfish.lemuroid.app.mobile.feature.settings.inputdevices.InputDevicesSettingsViewModel
 import com.swordfish.lemuroid.app.mobile.feature.settings.savesync.SaveSyncSettingsScreen
 import com.swordfish.lemuroid.app.mobile.feature.settings.savesync.SaveSyncSettingsViewModel
+import com.swordfish.lemuroid.app.mobile.feature.shop.ShopScreen
 import com.swordfish.lemuroid.app.mobile.feature.shortcuts.ShortcutsGenerator
 import com.swordfish.lemuroid.app.mobile.feature.systems.MetaSystemsScreen
 import com.swordfish.lemuroid.app.mobile.feature.systems.MetaSystemsViewModel
@@ -213,6 +214,11 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
                                             applicationContext,
                                         ),
                                 ),
+                        )
+                    }
+                    composable(MainRoute.SHOP) {
+                        ShopScreen(
+                            modifier = Modifier.padding(padding),
                         )
                     }
                     composable(MainRoute.SYSTEM_GAMES) { entry ->

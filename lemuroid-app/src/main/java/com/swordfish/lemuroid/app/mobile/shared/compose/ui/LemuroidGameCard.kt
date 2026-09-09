@@ -1,5 +1,9 @@
 package com.swordfish.lemuroid.app.mobile.shared.compose.ui
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -23,10 +27,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -37,23 +43,56 @@ import com.swordfish.lemuroid.lib.library.db.entity.Game
 fun LemuroidGameCard(
     modifier: Modifier = Modifier,
     game: Game,
+    isSelected: Boolean = false,
     onClick: () -> Unit = { },
     onLongClick: () -> Unit = { },
 ) {
     val cardShape = RoundedCornerShape(20.dp)
     val haptics = rememberLemuroidHaptics()
 
+    // Nintendo Switch style active cyan border & glow
+    val switchCyan = Color(0xFF00E5FF)
+    val defaultBorder = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)
+
+    val borderColor by animateColorAsState(
+        targetValue = if (isSelected) switchCyan else defaultBorder,
+        animationSpec = spring(stiffness = Spring.StiffnessMedium),
+        label = "BorderColor",
+    )
+    val borderWidth by animateDpAsState(
+        targetValue = if (isSelected) 3.5.dp else 1.dp,
+        animationSpec = spring(stiffness = Spring.StiffnessMedium),
+        label = "BorderWidth",
+    )
+    val cardElevation by animateDpAsState(
+        targetValue = if (isSelected) 10.dp else 2.dp,
+        animationSpec = spring(stiffness = Spring.StiffnessMedium),
+        label = "Elevation",
+    )
+
     ElevatedCard(
         modifier = modifier
             .fillMaxWidth()
+            .then(
+                if (isSelected) {
+                    Modifier.shadow(
+                        elevation = 12.dp,
+                        shape = cardShape,
+                        spotColor = switchCyan.copy(alpha = 0.60f),
+                        ambientColor = switchCyan.copy(alpha = 0.25f),
+                    )
+                } else {
+                    Modifier
+                }
+            )
             .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+                width = borderWidth,
+                color = borderColor,
                 shape = cardShape,
             ),
         shape = cardShape,
         elevation = CardDefaults.elevatedCardElevation(
-            defaultElevation = 2.dp,
+            defaultElevation = cardElevation,
             pressedElevation = 6.dp,
             focusedElevation = 4.dp,
             hoveredElevation = 4.dp,

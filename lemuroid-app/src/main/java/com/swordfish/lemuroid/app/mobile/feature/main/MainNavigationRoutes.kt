@@ -54,6 +54,10 @@ enum class MainRoute(
         route = "systems/home",
         titleId = R.string.title_systems,
     ),
+    SHOP(
+        route = "shop",
+        titleId = R.string.title_shop,
+    ),
     SYSTEM_GAMES(
         route = "systems/{metaSystemId}",
         titleId = R.string.title_games,
@@ -113,11 +117,14 @@ enum class MainRoute(
 enum class MainNavigationRoutes(
     val route: MainRoute,
     @StringRes val titleId: Int,
-    val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector,
+    val selectedIcon: ImageVector? = null,
+    val unselectedIcon: ImageVector? = null,
+    val selectedDrawableRes: Int? = null,
+    val unselectedDrawableRes: Int? = null,
     val isCenterAction: Boolean = false,
 ) {
-    FAVORITES(MainRoute.FAVORITES, R.string.favorites, Icons.Filled.Favorite, Icons.Outlined.FavoriteBorder, isCenterAction = false),
-    HOME(MainRoute.HOME, R.string.title_home, Icons.Filled.Home, Icons.Outlined.Home, isCenterAction = true),
-    SYSTEMS(MainRoute.SYSTEMS, R.string.title_systems, Icons.Filled.VideogameAsset, Icons.Outlined.VideogameAsset, isCenterAction = false),
+    FAVORITES(MainRoute.FAVORITES, R.string.favorites, selectedIcon = Icons.Filled.Favorite, unselectedIcon = Icons.Outlined.FavoriteBorder, isCenterAction = false),
+    HOME(MainRoute.HOME, R.string.title_home, selectedIcon = Icons.Filled.Home, unselectedIcon = Icons.Outlined.Home, isCenterAction = true),
+    SYSTEMS(MainRoute.SYSTEMS, R.string.title_systems, selectedIcon = Icons.Filled.VideogameAsset, unselectedIcon = Icons.Outlined.VideogameAsset, isCenterAction = false),
+    SHOP(MainRoute.SHOP, R.string.title_shop, selectedDrawableRes = R.drawable.ic_shop, unselectedDrawableRes = R.drawable.ic_shop_outlined, isCenterAction = false),
 }

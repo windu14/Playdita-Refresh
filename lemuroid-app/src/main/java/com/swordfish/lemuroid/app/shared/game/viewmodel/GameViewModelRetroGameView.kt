@@ -201,6 +201,24 @@ class GameViewModelRetroGameView(
             .first()
     }
 
+    fun updateShader(screenFilter: String) {
+        val currentState = gameState.value
+        if (currentState is GameState.Loaded) {
+            scope.launch {
+                val hdMode = settingsManager.hdMode()
+                val hdModeQuality = settingsManager.hdModeQuality()
+                val shader = ShaderChooser.getShaderForSystem(
+                    appContext,
+                    hdMode,
+                    hdModeQuality,
+                    screenFilter,
+                    system,
+                )
+                currentState.retroViewData.shader = shader
+            }
+        }
+    }
+
     private fun buildRetroViewData(
         appContext: Context,
         systemCoreConfig: SystemCoreConfig,

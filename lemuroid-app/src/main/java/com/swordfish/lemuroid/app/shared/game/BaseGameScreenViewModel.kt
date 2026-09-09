@@ -323,6 +323,10 @@ class BaseGameScreenViewModel(
         return inputs.sendKeyEvent(keyCode, event)
     }
 
+    fun updateShader(screenFilter: String) {
+        retroGameView.updateShader(screenFilter)
+    }
+
     fun sendMotionEvent(event: MotionEvent): Boolean {
         return inputs.sendMotionEvent(event)
     }

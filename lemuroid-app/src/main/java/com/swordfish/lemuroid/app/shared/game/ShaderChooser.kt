@@ -25,16 +25,18 @@ object ShaderChooser {
             } else {
                 HDModeQuality.LOW
             }
-        return when {
-            hdMode -> getHDShaderForSystem(system, hdModeQuality)
-            else ->
-                when (screenFilter) {
-                    "crt" -> ShaderConfig.CRT
-                    "lcd" -> ShaderConfig.LCD
-                    "smooth" -> ShaderConfig.Default
-                    "sharp" -> ShaderConfig.Sharp
-                    else -> getDefaultShaderForSystem(system)
+        return when (screenFilter) {
+            "crt" -> ShaderConfig.CRT
+            "lcd" -> ShaderConfig.LCD
+            "smooth" -> ShaderConfig.Default
+            "sharp" -> ShaderConfig.Sharp
+            else -> {
+                if (hdMode) {
+                    getHDShaderForSystem(system, hdModeQuality)
+                } else {
+                    getDefaultShaderForSystem(system)
                 }
+            }
         }
     }
 

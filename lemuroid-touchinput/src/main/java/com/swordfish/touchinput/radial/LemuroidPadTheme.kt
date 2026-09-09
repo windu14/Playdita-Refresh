@@ -83,6 +83,34 @@ open class LemuroidPadTheme(
             level0Fill = Color(1.0f, 0.75f, 0.88f, 0.12f),
             level0Shadow = Color(0xFFC2185B).copy(0.10f),
         )
+
+        val CYAN = createColorTheme(Color(0xFF00E5FF))
+        val EMERALD = createColorTheme(Color(0xFF00E676))
+        val AMBER = createColorTheme(Color(0xFFFFAB00))
+        val VIOLET = createColorTheme(Color(0xFF7C4DFF))
+
+        fun createColorTheme(color: Color): LemuroidPadTheme {
+            val r = color.red
+            val g = color.green
+            val b = color.blue
+            val lum = r * 0.299f + g * 0.587f + b * 0.114f
+            val iconColor = if (lum > 0.65f) Color(0.10f, 0.10f, 0.12f, 0.85f) else Color.White.copy(alpha = 0.90f)
+
+            return LemuroidPadTheme(
+                icons = iconColor,
+                iconsPressed = Color.White,
+                level3Fill = color.copy(alpha = 0.70f),
+                level3FillPressed = Color(r * 0.75f, g * 0.75f, b * 0.75f, 0.90f),
+                level3Shadow = color.copy(alpha = 0.35f),
+                level2Fill = color.copy(alpha = 0.30f),
+                level2FillPressed = color.copy(alpha = 0.55f),
+                level2Shadow = color.copy(alpha = 0.20f),
+                level1Fill = color.copy(alpha = 0.20f),
+                level1Shadow = color.copy(alpha = 0.15f),
+                level0Fill = color.copy(alpha = 0.10f),
+                level0Shadow = color.copy(alpha = 0.10f),
+            )
+        }
     }
 }
 
