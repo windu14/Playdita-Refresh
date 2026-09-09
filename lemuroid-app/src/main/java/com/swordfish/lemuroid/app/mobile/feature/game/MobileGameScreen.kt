@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.only
@@ -65,6 +67,7 @@ import com.swordfish.lemuroid.app.shared.game.BaseGameScreenViewModel
 import com.swordfish.lemuroid.app.shared.game.viewmodel.GameViewModelTouchControls.Companion.MENU_LOADING_ANIMATION_MILLIS
 import com.swordfish.lemuroid.app.shared.settings.HapticFeedbackMode
 import com.swordfish.lemuroid.lib.controller.ControllerConfig
+import com.swordfish.lemuroid.lib.library.SystemID
 import com.swordfish.touchinput.controller.R
 import com.swordfish.touchinput.radial.LemuroidPadTheme
 import com.swordfish.touchinput.radial.LocalLemuroidPadTheme
@@ -133,102 +136,159 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
             if (hasCustomBackground) GameBackgroundThemeManager.getBackgroundFile(localContext) else null
         }
 
-        PadKit(
-            modifier = Modifier.fillMaxSize(),
-            onInputEvents = { viewModel.handleVirtualInputEvent(it) },
-            hapticFeedbackType = padHapticFeedback,
-            simulatedState = tiltSimulatedStates,
-            simulatedControlIds = tiltSimulatedControls,
+        val gameAspectRatio = remember(viewModel.system.id) {
+            when (viewModel.system.id) {
+                SystemID.GBA -> 3f / 2f
+                SystemID.GB, SystemID.GBC, SystemID.GG -> 10f / 9f
+                SystemID.PSP -> 16f / 9f
+                SystemID.NDS -> 2f / 3f
+                SystemID.LYNX -> 160f / 102f
+                SystemID.NGP -> 20f / 19f
+                SystemID.WS, SystemID.WSC -> 14f / 9f
+                else -> 4f / 3f
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black),
         ) {
-            val fullScreenPosition = remember { mutableStateOf<Rect?>(null) }
-            val viewportPosition = remember { mutableStateOf<Rect?>(null) }
-
-            AndroidView(
-                modifier =
-                    Modifier
+            if (hasCustomBackground && customBackgroundFile != null && customBackgroundFile.exists()) {
+                AsyncImage(
+                    model = ImageRequest.Builder(localContext)
+                        .data(customBackgroundFile)
+                        .memoryCacheKey("game_bg_$backgroundUpdateKey")
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop,
+                )
+                // Subtle dark overlay to ensure touch controls and retro game screen maintain great contrast
+                Box(
+                    modifier = Modifier
                         .fillMaxSize()
-                        .onGloballyPositioned { fullScreenPosition.value = it.boundsInRoot() },
-                factory = {
-                    viewModel.createRetroView(localContext, lifecycle)
-                },
-            )
-
-            val fullPos = fullScreenPosition.value
-            val viewPos = viewportPosition.value
-
-            LaunchedEffect(fullPos, viewPos) {
-                val gameView = viewModel.retroGameView.retroGameViewFlow()
-                if (fullPos == null || viewPos == null) return@LaunchedEffect
-                val viewport =
-                    RectF(
-                        (viewPos.left - fullPos.left) / fullPos.width,
-                        (viewPos.top - fullPos.top) / fullPos.height,
-                        (viewPos.right - fullPos.left) / fullPos.width,
-                        (viewPos.bottom - fullPos.top) / fullPos.height,
-                    )
-                gameView.viewport = viewport
+                        .background(Color.Black.copy(alpha = 0.22f))
+                )
             }
 
-            ConstraintLayout(
+            PadKit(
                 modifier = Modifier.fillMaxSize(),
-                constraintSet =
-                    GameScreenLayout.buildConstraintSet(
-                        isLandscape,
-                        currentControllerConfig?.allowTouchOverlay ?: true,
-                    ),
+                onInputEvents = { viewModel.handleVirtualInputEvent(it) },
+                hapticFeedbackType = padHapticFeedback,
+                simulatedState = tiltSimulatedStates,
+                simulatedControlIds = tiltSimulatedControls,
             ) {
-                Box(
-                    modifier =
-                        Modifier
-                            .layoutId(GameScreenLayout.CONSTRAINTS_GAME_VIEW)
-                            .windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Top))
-                            .onGloballyPositioned { viewportPosition.value = it.boundsInRoot() },
-                )
+                val fullScreenPosition = remember { mutableStateOf<Rect?>(null) }
+                val viewportPosition = remember { mutableStateOf<Rect?>(null) }
 
-                val isVisible =
-                    touchControllerSettings != null &&
-                        currentControllerConfig != null &&
-                        touchControlsVisibleState.value
+                ConstraintLayout(
+                    modifier = Modifier.fillMaxSize(),
+                    constraintSet =
+                        GameScreenLayout.buildConstraintSet(
+                            isLandscape,
+                            currentControllerConfig?.allowTouchOverlay ?: true,
+                        ),
+                ) {
+                    Box(
+                        modifier =
+                            Modifier
+                                .layoutId(GameScreenLayout.CONSTRAINTS_GAME_VIEW)
+                                .windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Top))
+                                .onGloballyPositioned { viewportPosition.value = it.boundsInRoot() },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        BoxWithConstraints(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            val containerAspect = maxWidth / maxHeight
+                            val sizeModifier = if (hasCustomBackground) {
+                                if (containerAspect > gameAspectRatio) {
+                                    Modifier
+                                        .fillMaxHeight()
+                                        .aspectRatio(gameAspectRatio)
+                                } else {
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .aspectRatio(gameAspectRatio)
+                                }
+                            } else {
+                                Modifier.fillMaxSize()
+                            }
 
-                if (isVisible) {
-                    CompositionLocalProvider(LocalLemuroidPadTheme provides LemuroidPadTheme()) {
-                        if (!isLandscape) {
-                            PadContainer(
-                                modifier = Modifier.layoutId(GameScreenLayout.CONSTRAINTS_BOTTOM_CONTAINER),
-                                customBackgroundFile = customBackgroundFile,
-                                backgroundUpdateKey = backgroundUpdateKey,
-                            )
-                        } else if (!currentControllerConfig.allowTouchOverlay) {
-                            PadContainer(
-                                modifier = Modifier.layoutId(GameScreenLayout.CONSTRAINTS_LEFT_CONTAINER),
-                                customBackgroundFile = customBackgroundFile,
-                                backgroundUpdateKey = backgroundUpdateKey,
-                            )
-                            PadContainer(
-                                modifier = Modifier.layoutId(GameScreenLayout.CONSTRAINTS_RIGHT_CONTAINER),
-                                customBackgroundFile = customBackgroundFile,
-                                backgroundUpdateKey = backgroundUpdateKey,
+                            AndroidView(
+                                modifier = sizeModifier
+                                    .onGloballyPositioned { fullScreenPosition.value = it.boundsInRoot() },
+                                factory = {
+                                    viewModel.createRetroView(localContext, lifecycle)
+                                },
                             )
                         }
+                    }
 
-                        leftGamePad?.invoke(
-                            this,
-                            Modifier.layoutId(GameScreenLayout.CONSTRAINTS_LEFT_PAD),
-                            touchControllerSettings,
-                        )
-                        rightGamePad?.invoke(
-                            this,
-                            Modifier.layoutId(GameScreenLayout.CONSTRAINTS_RIGHT_PAD),
-                            touchControllerSettings,
-                        )
+                    val isVisible =
+                        touchControllerSettings != null &&
+                            currentControllerConfig != null &&
+                            touchControlsVisibleState.value
 
-                        GameScreenRunningCentralMenu(
-                            modifier = Modifier.layoutId(GameScreenLayout.CONSTRAINTS_GAME_CONTAINER),
-                            controllerConfig = currentControllerConfig,
-                            touchControllerSettings = touchControllerSettings,
-                            viewModel = viewModel,
+                    if (isVisible) {
+                        CompositionLocalProvider(LocalLemuroidPadTheme provides LemuroidPadTheme()) {
+                            if (!isLandscape) {
+                                PadContainer(
+                                    modifier = Modifier.layoutId(GameScreenLayout.CONSTRAINTS_BOTTOM_CONTAINER),
+                                    hasCustomBackground = hasCustomBackground,
+                                )
+                            } else if (!currentControllerConfig.allowTouchOverlay) {
+                                PadContainer(
+                                    modifier = Modifier.layoutId(GameScreenLayout.CONSTRAINTS_LEFT_CONTAINER),
+                                    hasCustomBackground = hasCustomBackground,
+                                )
+                                PadContainer(
+                                    modifier = Modifier.layoutId(GameScreenLayout.CONSTRAINTS_RIGHT_CONTAINER),
+                                    hasCustomBackground = hasCustomBackground,
+                                )
+                            }
+
+                            leftGamePad?.invoke(
+                                this,
+                                Modifier.layoutId(GameScreenLayout.CONSTRAINTS_LEFT_PAD),
+                                touchControllerSettings,
+                            )
+                            rightGamePad?.invoke(
+                                this,
+                                Modifier.layoutId(GameScreenLayout.CONSTRAINTS_RIGHT_PAD),
+                                touchControllerSettings,
+                            )
+
+                            GameScreenRunningCentralMenu(
+                                modifier = Modifier.layoutId(GameScreenLayout.CONSTRAINTS_GAME_CONTAINER),
+                                controllerConfig = currentControllerConfig,
+                                touchControllerSettings = touchControllerSettings,
+                                viewModel = viewModel,
+                            )
+                        }
+                    }
+                }
+
+                val fullPos = fullScreenPosition.value
+                val viewPos = viewportPosition.value
+
+                LaunchedEffect(fullPos, viewPos, hasCustomBackground) {
+                    val gameView = viewModel.retroGameView.retroGameViewFlow()
+                    if (fullPos == null || viewPos == null) return@LaunchedEffect
+                    val viewport = if (hasCustomBackground) {
+                        RectF(0f, 0f, 1f, 1f)
+                    } else {
+                        RectF(
+                            (viewPos.left - fullPos.left) / fullPos.width,
+                            (viewPos.top - fullPos.top) / fullPos.height,
+                            (viewPos.right - fullPos.left) / fullPos.width,
+                            (viewPos.bottom - fullPos.top) / fullPos.height,
                         )
                     }
+                    gameView.viewport = viewport
                 }
             }
         }
@@ -254,11 +314,9 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
 @Composable
 private fun PadContainer(
     modifier: Modifier = Modifier,
-    customBackgroundFile: File? = null,
-    backgroundUpdateKey: Long = 0L,
+    hasCustomBackground: Boolean = false,
 ) {
     val theme = LocalLemuroidPadTheme.current
-    val hasCustomBackground = customBackgroundFile != null && customBackgroundFile.exists()
 
     Box(
         modifier = modifier.clip(
@@ -268,29 +326,10 @@ private fun PadContainer(
             )
         )
     ) {
-        if (hasCustomBackground) {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(customBackgroundFile)
-                    .memoryCacheKey("game_bg_$backgroundUpdateKey")
-                    .crossfade(true)
-                    .build(),
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop,
-            )
-            // Subtle dark overlay to ensure touch controls (buttons & DPad) stay clear and readable
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.28f))
-            )
-        }
-
         GlassSurface(
             modifier = Modifier.fillMaxSize(),
             cornerRadius = theme.level0CornerRadius,
-            fillColor = if (hasCustomBackground) Color.Transparent else theme.level0Fill,
+            fillColor = if (hasCustomBackground) Color.Black.copy(alpha = 0.20f) else theme.level0Fill,
             shadowColor = theme.level0Shadow,
             shadowWidth = theme.level0ShadowWidth,
         )
