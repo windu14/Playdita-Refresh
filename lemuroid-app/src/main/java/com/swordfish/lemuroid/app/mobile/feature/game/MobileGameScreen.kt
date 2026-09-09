@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -60,7 +61,10 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.swordfish.lemuroid.app.shared.game.BackgroundSlot
+import com.swordfish.lemuroid.app.shared.game.BackgroundThemeMode
 import com.swordfish.lemuroid.app.shared.game.GameBackgroundThemeManager
+import com.swordfish.lemuroid.app.shared.game.GameScreenSettingsManager
 import java.io.File
 import com.swordfish.lemuroid.app.utils.android.settings.booleanPreferenceState
 import com.swordfish.lemuroid.app.shared.game.BaseGameScreenViewModel
@@ -129,12 +133,36 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
 
         LaunchedEffect(Unit) {
             GameBackgroundThemeManager.init(localContext)
+            GameScreenSettingsManager.init(localContext)
         }
         val backgroundUpdateKey by GameBackgroundThemeManager.backgroundUpdateFlow.collectAsState()
-        val hasCustomBackground by GameBackgroundThemeManager.hasCustomBackgroundFlow.collectAsState()
-        val customBackgroundFile = remember(backgroundUpdateKey, hasCustomBackground) {
-            if (hasCustomBackground) GameBackgroundThemeManager.getBackgroundFile(localContext) else null
+        val themeMode by GameBackgroundThemeManager.themeModeFlow.collectAsState()
+        val screenSettings by GameScreenSettingsManager.screenSettingsFlow.collectAsState()
+
+        val fullscreenBgFile = remember(backgroundUpdateKey, themeMode) {
+            if (themeMode == BackgroundThemeMode.FULLSCREEN) {
+                GameBackgroundThemeManager.getBackgroundFile(localContext, BackgroundSlot.FULLSCREEN)
+            } else {
+                null
+            }
         }
+        val topBgFile = remember(backgroundUpdateKey, themeMode) {
+            if (themeMode == BackgroundThemeMode.SPLIT) {
+                GameBackgroundThemeManager.getBackgroundFile(localContext, BackgroundSlot.TOP)
+            } else {
+                null
+            }
+        }
+        val bottomBgFile = remember(backgroundUpdateKey, themeMode) {
+            if (themeMode == BackgroundThemeMode.SPLIT) {
+                GameBackgroundThemeManager.getBackgroundFile(localContext, BackgroundSlot.BOTTOM)
+            } else {
+                null
+            }
+        }
+
+        val hasCustomBackground = (themeMode == BackgroundThemeMode.FULLSCREEN && fullscreenBgFile != null) ||
+            (themeMode == BackgroundThemeMode.SPLIT && (topBgFile != null || bottomBgFile != null))
 
         val gameAspectRatio = remember(viewModel.system.id) {
             when (viewModel.system.id) {
@@ -154,11 +182,11 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                 .fillMaxSize()
                 .background(Color.Black),
         ) {
-            if (hasCustomBackground && customBackgroundFile != null && customBackgroundFile.exists()) {
+            if (themeMode == BackgroundThemeMode.FULLSCREEN && fullscreenBgFile != null && fullscreenBgFile.exists()) {
                 AsyncImage(
                     model = ImageRequest.Builder(localContext)
-                        .data(customBackgroundFile)
-                        .memoryCacheKey("game_bg_$backgroundUpdateKey")
+                        .data(fullscreenBgFile)
+                        .memoryCacheKey("game_bg_fullscreen_$backgroundUpdateKey")
                         .crossfade(true)
                         .build(),
                     contentDescription = null,
@@ -199,23 +227,47 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                                 .onGloballyPositioned { viewportPosition.value = it.boundsInRoot() },
                         contentAlignment = Alignment.Center,
                     ) {
+                        // Render Top Background when SPLIT mode is active and topBgFile exists
+                        if (themeMode == BackgroundThemeMode.SPLIT && topBgFile != null && topBgFile.exists()) {
+                            AsyncImage(
+                                model = ImageRequest.Builder(localContext)
+                                    .data(topBgFile)
+                                    .memoryCacheKey("game_bg_top_$backgroundUpdateKey")
+                                    .crossfade(true)
+                                    .build(),
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop,
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(Color.Black.copy(alpha = 0.20f))
+                            )
+                        }
+
                         BoxWithConstraints(
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .offset(y = screenSettings.verticalOffsetDp.dp),
                             contentAlignment = Alignment.Center,
                         ) {
                             val containerAspect = maxWidth / maxHeight
-                            val sizeModifier = if (hasCustomBackground) {
-                                if (containerAspect > gameAspectRatio) {
+                            val scale = screenSettings.scale.coerceIn(0.60f, 1.25f)
+                            val sizeModifier = when {
+                                screenSettings.stretch -> {
+                                    Modifier.fillMaxSize(scale)
+                                }
+                                containerAspect > gameAspectRatio -> {
                                     Modifier
-                                        .fillMaxHeight()
-                                        .aspectRatio(gameAspectRatio)
-                                } else {
-                                    Modifier
-                                        .fillMaxWidth()
+                                        .fillMaxHeight(scale)
                                         .aspectRatio(gameAspectRatio)
                                 }
-                            } else {
-                                Modifier.fillMaxSize()
+                                else -> {
+                                    Modifier
+                                        .fillMaxWidth(scale)
+                                        .aspectRatio(gameAspectRatio)
+                                }
                             }
 
                             AndroidView(
@@ -238,16 +290,22 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                             if (!isLandscape) {
                                 PadContainer(
                                     modifier = Modifier.layoutId(GameScreenLayout.CONSTRAINTS_BOTTOM_CONTAINER),
-                                    hasCustomBackground = hasCustomBackground,
+                                    hasFullscreenBackground = themeMode == BackgroundThemeMode.FULLSCREEN && fullscreenBgFile != null,
+                                    bottomBackgroundFile = bottomBgFile,
+                                    backgroundUpdateKey = backgroundUpdateKey,
                                 )
                             } else if (!currentControllerConfig.allowTouchOverlay) {
                                 PadContainer(
                                     modifier = Modifier.layoutId(GameScreenLayout.CONSTRAINTS_LEFT_CONTAINER),
-                                    hasCustomBackground = hasCustomBackground,
+                                    hasFullscreenBackground = themeMode == BackgroundThemeMode.FULLSCREEN && fullscreenBgFile != null,
+                                    bottomBackgroundFile = bottomBgFile,
+                                    backgroundUpdateKey = backgroundUpdateKey,
                                 )
                                 PadContainer(
                                     modifier = Modifier.layoutId(GameScreenLayout.CONSTRAINTS_RIGHT_CONTAINER),
-                                    hasCustomBackground = hasCustomBackground,
+                                    hasFullscreenBackground = themeMode == BackgroundThemeMode.FULLSCREEN && fullscreenBgFile != null,
+                                    bottomBackgroundFile = bottomBgFile,
+                                    backgroundUpdateKey = backgroundUpdateKey,
                                 )
                             }
 
@@ -275,19 +333,12 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                 val fullPos = fullScreenPosition.value
                 val viewPos = viewportPosition.value
 
-                LaunchedEffect(fullPos, viewPos, hasCustomBackground) {
+                LaunchedEffect(fullPos, viewPos, hasCustomBackground, screenSettings) {
                     val gameView = viewModel.retroGameView.retroGameViewFlow()
                     if (fullPos == null || viewPos == null) return@LaunchedEffect
-                    val viewport = if (hasCustomBackground) {
-                        RectF(0f, 0f, 1f, 1f)
-                    } else {
-                        RectF(
-                            (viewPos.left - fullPos.left) / fullPos.width,
-                            (viewPos.top - fullPos.top) / fullPos.height,
-                            (viewPos.right - fullPos.left) / fullPos.width,
-                            (viewPos.bottom - fullPos.top) / fullPos.height,
-                        )
-                    }
+                    // With sizeModifier applying aspect ratio and scaling directly,
+                    // viewport coordinates inside AndroidView map directly from (0,0) to (1,1)
+                    val viewport = RectF(0f, 0f, 1f, 1f)
                     gameView.viewport = viewport
                 }
             }
@@ -314,9 +365,12 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
 @Composable
 private fun PadContainer(
     modifier: Modifier = Modifier,
-    hasCustomBackground: Boolean = false,
+    hasFullscreenBackground: Boolean = false,
+    bottomBackgroundFile: File? = null,
+    backgroundUpdateKey: Long = 0L,
 ) {
     val theme = LocalLemuroidPadTheme.current
+    val context = LocalContext.current
 
     Box(
         modifier = modifier.clip(
@@ -326,10 +380,31 @@ private fun PadContainer(
             )
         )
     ) {
+        if (bottomBackgroundFile != null && bottomBackgroundFile.exists()) {
+            AsyncImage(
+                model = ImageRequest.Builder(context)
+                    .data(bottomBackgroundFile)
+                    .memoryCacheKey("game_bg_bottom_$backgroundUpdateKey")
+                    .crossfade(true)
+                    .build(),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+            )
+            // Subtle dark overlay to ensure touch controls maintain great contrast
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.20f))
+            )
+        }
+
+        val hasAnyBg = hasFullscreenBackground || (bottomBackgroundFile != null && bottomBackgroundFile.exists())
+
         GlassSurface(
             modifier = Modifier.fillMaxSize(),
             cornerRadius = theme.level0CornerRadius,
-            fillColor = if (hasCustomBackground) Color.Black.copy(alpha = 0.20f) else theme.level0Fill,
+            fillColor = if (hasAnyBg) Color.Black.copy(alpha = 0.18f) else theme.level0Fill,
             shadowColor = theme.level0Shadow,
             shadowWidth = theme.level0ShadowWidth,
         )

@@ -43,6 +43,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.feature.gamemenu.background.GameMenuBackgroundScreen
+import com.swordfish.lemuroid.app.mobile.feature.gamemenu.screenlayout.GameMenuScreenLayoutScreen
 import com.swordfish.lemuroid.app.mobile.feature.gamemenu.cheats.GameMenuCheatsScreen
 import com.swordfish.lemuroid.app.mobile.feature.gamemenu.coreoptions.GameMenuCoreOptionsScreen
 import com.swordfish.lemuroid.app.mobile.feature.gamemenu.coreoptions.GameMenuCoreOptionsViewModel
@@ -240,6 +241,9 @@ class GameMenuActivity : RetrogradeComponentActivity() {
                     }
                     composable(GameMenuRoute.BACKGROUND) {
                         GameMenuBackgroundScreen()
+                    }
+                    composable(GameMenuRoute.SCREEN_LAYOUT) {
+                        GameMenuScreenLayoutScreen()
                     }
                 }
             }

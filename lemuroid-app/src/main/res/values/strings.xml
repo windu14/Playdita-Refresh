@@ -167,6 +167,38 @@
     <string name="background_theme_status_active">Background kustom sedang aktif</string>
     <string name="background_theme_status_default">Menggunakan tema default (hitam polos)</string>
     <string name="background_theme_active_badge">Aktif</string>
+    <string name="background_theme_mode_fullscreen">Layar Penuh (Full Screen)</string>
+    <string name="background_theme_mode_split">Terpisah (Layar &amp; Kontroler)</string>
+    <string name="background_theme_mode_select">Pilih Mode Penerapan Tema</string>
+    <string name="background_theme_slot_fullscreen">Layar Penuh (Edge-to-Edge)</string>
+    <string name="background_theme_slot_top">Area Atas (Layar Game)</string>
+    <string name="background_theme_slot_bottom">Area Bawah (Kontroler Gamepad)</string>
+    <string name="background_theme_pick_top">Pilih Gambar Layar Atas</string>
+    <string name="background_theme_pick_bottom">Pilih Gambar Kontroler</string>
+    <string name="background_theme_reset_top">Reset Layar Atas</string>
+    <string name="background_theme_reset_bottom">Reset Kontroler</string>
+    <string name="background_theme_reset_all">Reset Semua Tema</string>
+    <string name="background_theme_specs_title">Panduan Ukuran &amp; Margin Presisi</string>
+    <string name="background_theme_spec_fullscreen_info"><b>Layar Penuh:</b> Rekomendasi 1080 x 2400 px (Rasio 9:16 ~ 9:20). Membentang penuh dari atas hingga bawah layar.</string>
+    <string name="background_theme_spec_top_info"><b>Area Layar Atas:</b> Rekomendasi 1080 x 1080 px s/d 1080 x 1200 px (Rasio 1:1 atau 4:3). Mengisi area di sekeliling game retro.</string>
+    <string name="background_theme_spec_bottom_info"><b>Area Kontroler:</b> Rekomendasi 1080 x 1100 px s/d 1080 x 1300 px (Rasio 1:1 atau 9:8). Mengisi wadah gamepad bawah dengan margin sudut lengkung 28dp.</string>
+
+    <!-- Screen Layout Customization Strings -->
+    <string name="game_menu_screen_layout">Sesuaikan Tampilan Layar</string>
+    <string name="screen_layout_preview_title">Pratinjau Tata Letak Layar</string>
+    <string name="screen_layout_scale_title">Ukuran Layar (Zoom)</string>
+    <string name="screen_layout_scale_desc">Perbesar atau perkecil tampilan game retro sesuai kenyamanan.</string>
+    <string name="screen_layout_pos_title">Posisi Vertikal Layar</string>
+    <string name="screen_layout_pos_desc">Geser posisi layar lebih ke atas atau ke bawah mendekati tombol kontrol.</string>
+    <string name="screen_layout_pos_top">Atas</string>
+    <string name="screen_layout_pos_center">Tengah</string>
+    <string name="screen_layout_pos_bottom">Bawah</string>
+    <string name="screen_layout_aspect_title">Rasio Tampilan Layar</string>
+    <string name="screen_layout_aspect_original">Rasio Asli Retro</string>
+    <string name="screen_layout_aspect_stretch">Penuh / Peregangan (Stretch)</string>
+    <string name="screen_layout_reset">Reset Tata Letak Layar</string>
+    <string name="screen_layout_reset_success">Tata letak layar dikembalikan ke default.</string>
+    <string name="screen_layout_tips">Pengaturan ukuran dan posisi layar diterapkan langsung secara fleksibel dan aman tanpa mengganggu emulasi.</string>
 
     <string name="game_loading_preparing_game">Menyiapkan game…</string>
 

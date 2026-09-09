@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AspectRatio
 import androidx.compose.material.icons.filled.Sensors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -20,7 +21,9 @@ import com.alorma.compose.settings.storage.memory.rememberMemoryIntSettingState
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.feature.gamemenu.tilt.TiltConfigurationMenuEntry
 import com.swordfish.lemuroid.app.shared.GameMenuContract
+import com.swordfish.lemuroid.app.shared.game.BackgroundThemeMode
 import com.swordfish.lemuroid.app.shared.game.GameBackgroundThemeManager
+import com.swordfish.lemuroid.app.shared.game.GameScreenSettingsManager
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsList
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsMenuLink
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsSwitch
@@ -156,12 +159,17 @@ fun GameMenuHomeScreen(
         )
 
         val hasCustomBg by GameBackgroundThemeManager.hasCustomBackgroundFlow.collectAsState()
+        val themeMode by GameBackgroundThemeManager.themeModeFlow.collectAsState()
         LemuroidSettingsMenuLink(
             title = { Text(text = stringResource(id = R.string.game_menu_background_theme)) },
             subtitle = {
                 Text(
                     text = if (hasCustomBg) {
-                        stringResource(R.string.game_menu_background_theme_custom)
+                        when (themeMode) {
+                            BackgroundThemeMode.FULLSCREEN -> stringResource(R.string.background_theme_mode_fullscreen)
+                            BackgroundThemeMode.SPLIT -> stringResource(R.string.background_theme_mode_split)
+                            else -> stringResource(R.string.game_menu_background_theme_custom)
+                        }
                     } else {
                         stringResource(R.string.game_menu_background_theme_default)
                     },
@@ -174,6 +182,28 @@ fun GameMenuHomeScreen(
                 )
             },
             onClick = { navController.navigateToRoute(GameMenuRoute.BACKGROUND) },
+        )
+
+        val screenSettings by GameScreenSettingsManager.screenSettingsFlow.collectAsState()
+        LemuroidSettingsMenuLink(
+            title = { Text(text = stringResource(id = R.string.game_menu_screen_layout)) },
+            subtitle = {
+                Text(
+                    text = "${(screenSettings.scale * 100).toInt()}% • " +
+                        when {
+                            screenSettings.verticalOffsetDp < -15 -> stringResource(R.string.screen_layout_pos_top)
+                            screenSettings.verticalOffsetDp > 15 -> stringResource(R.string.screen_layout_pos_bottom)
+                            else -> stringResource(R.string.screen_layout_pos_center)
+                        }
+                )
+            },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.AspectRatio,
+                    contentDescription = stringResource(id = R.string.game_menu_screen_layout),
+                )
+            },
+            onClick = { navController.navigateToRoute(GameMenuRoute.SCREEN_LAYOUT) },
         )
 
         if (gameMenuRequest.advancedCoreOptions.isNotEmpty() || gameMenuRequest.coreOptions.isNotEmpty()) {

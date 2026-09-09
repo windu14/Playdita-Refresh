@@ -54,6 +54,11 @@ enum class GameMenuRoute(
         titleId = R.string.game_menu_background_theme,
         parent = HOME,
     ),
+    SCREEN_LAYOUT(
+        route = "screen_layout",
+        titleId = R.string.game_menu_screen_layout,
+        parent = HOME,
+    ),
     ;
 
     fun canGoBack(): Boolean {
