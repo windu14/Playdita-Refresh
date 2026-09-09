@@ -284,11 +284,16 @@
 
     <string name="error_message_incompatible_state">Save state ini tidak kompatibel dengan versi core saat ini.</string>
 
-    <string name="shader_filter_names_auto">Otomatis</string>
-    <string name="shader_filter_names_sharp">Tajam (Sharp)</string>
-    <string name="shader_filter_names_smooth">Halus (Smooth)</string>
-    <string name="shader_filter_names_crt">CRT TV</string>
-    <string name="shader_filter_names_lcd">Layar LCD</string>
+    <string name="shader_filter_names_auto">Otomatis (Rekomendasi)</string>
+    <string name="shader_filter_names_sharp">Pixel Art Tajam (Sharp Nearest Neighbor)</string>
+    <string name="shader_filter_names_smooth">Visual Halus (Bilinear Smoothing)</string>
+    <string name="shader_filter_names_crt">Filter CRT / Scanlines (Garis TV Tabung 90-an)</string>
+    <string name="shader_filter_names_lcd">Filter Game Boy Matrix (Dot Matrix / Pixel Grid LCD)</string>
+
+    <string name="game_menu_touch_button_skin">Warna / Skin Tombol</string>
+    <string name="touch_skin_classic">Kaca Klasik (Transparan Putih)</string>
+    <string name="touch_skin_dark">Kaca Gelap (Smoked Dark)</string>
+    <string name="touch_skin_pink">Pastel Retro (Neon Pink)</string>
 
     <string name="haptic_feedback_mode_names_none">Tidak Ada</string>
     <string name="haptic_feedback_mode_names_press">Saat Ditekan</string>

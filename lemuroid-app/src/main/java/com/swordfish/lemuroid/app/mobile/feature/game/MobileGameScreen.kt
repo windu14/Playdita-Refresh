@@ -65,6 +65,7 @@ import com.swordfish.lemuroid.app.shared.game.BackgroundSlot
 import com.swordfish.lemuroid.app.shared.game.BackgroundThemeMode
 import com.swordfish.lemuroid.app.shared.game.GameBackgroundThemeManager
 import com.swordfish.lemuroid.app.shared.game.GameScreenSettingsManager
+import com.swordfish.lemuroid.app.shared.game.TouchButtonSkinManager
 import java.io.File
 import com.swordfish.lemuroid.app.utils.android.settings.booleanPreferenceState
 import com.swordfish.lemuroid.app.shared.game.BaseGameScreenViewModel
@@ -134,7 +135,9 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
         LaunchedEffect(Unit) {
             GameBackgroundThemeManager.init(localContext)
             GameScreenSettingsManager.init(localContext)
+            TouchButtonSkinManager.init(localContext)
         }
+        val touchSkin by TouchButtonSkinManager.skinFlow.collectAsState()
         val backgroundUpdateKey by GameBackgroundThemeManager.backgroundUpdateFlow.collectAsState()
         val themeMode by GameBackgroundThemeManager.themeModeFlow.collectAsState()
         val screenSettings by GameScreenSettingsManager.screenSettingsFlow.collectAsState()
@@ -223,7 +226,6 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                         modifier =
                             Modifier
                                 .layoutId(GameScreenLayout.CONSTRAINTS_GAME_VIEW)
-                                .windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Top))
                                 .onGloballyPositioned { viewportPosition.value = it.boundsInRoot() },
                         contentAlignment = Alignment.Center,
                     ) {
@@ -286,7 +288,7 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                             touchControlsVisibleState.value
 
                     if (isVisible) {
-                        CompositionLocalProvider(LocalLemuroidPadTheme provides LemuroidPadTheme()) {
+                        CompositionLocalProvider(LocalLemuroidPadTheme provides touchSkin.toTheme()) {
                             if (!isLandscape) {
                                 PadContainer(
                                     modifier = Modifier.layoutId(GameScreenLayout.CONSTRAINTS_BOTTOM_CONTAINER),

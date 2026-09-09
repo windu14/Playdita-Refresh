@@ -10,12 +10,16 @@ import androidx.compose.material.icons.filled.Sensors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
+import androidx.preference.PreferenceManager
 import com.alorma.compose.settings.storage.memory.rememberMemoryBooleanSettingState
 import com.alorma.compose.settings.storage.memory.rememberMemoryIntSettingState
 import com.swordfish.lemuroid.R
@@ -24,6 +28,8 @@ import com.swordfish.lemuroid.app.shared.GameMenuContract
 import com.swordfish.lemuroid.app.shared.game.BackgroundThemeMode
 import com.swordfish.lemuroid.app.shared.game.GameBackgroundThemeManager
 import com.swordfish.lemuroid.app.shared.game.GameScreenSettingsManager
+import com.swordfish.lemuroid.app.shared.game.TouchButtonSkin
+import com.swordfish.lemuroid.app.shared.game.TouchButtonSkinManager
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsList
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsMenuLink
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsSwitch
@@ -155,6 +161,69 @@ fun GameMenuHomeScreen(
             },
             onClick = {
                 onResult { putExtra(GameMenuContract.RESULT_EDIT_TOUCH_CONTROLS, true) }
+            },
+        )
+
+        val context = LocalContext.current
+        LaunchedEffect(Unit) {
+            TouchButtonSkinManager.init(context)
+        }
+
+        val touchSkin by TouchButtonSkinManager.skinFlow.collectAsState()
+        val touchSkinEntries = remember { TouchButtonSkin.values() }
+        val touchSkinIndex = touchSkinEntries.indexOf(touchSkin).coerceAtLeast(0)
+
+        LemuroidSettingsList(
+            title = { Text(text = stringResource(id = R.string.game_menu_touch_button_skin)) },
+            items = touchSkinEntries.map { stringResource(it.titleResId) },
+            useSelectedValueAsSubtitle = true,
+            icon = {
+                Icon(
+                    painterResource(R.drawable.ic_menu_controls),
+                    contentDescription = stringResource(id = R.string.game_menu_touch_button_skin),
+                )
+            },
+            state = rememberMemoryIntSettingState(touchSkinIndex),
+            onItemSelected = { index, _ ->
+                TouchButtonSkinManager.setSkin(context, touchSkinEntries[index])
+            },
+        )
+
+        val filterValues = remember {
+            context.resources.getStringArray(R.array.pref_key_shader_filter_values)
+        }
+        val filterDisplayNames = remember {
+            context.resources.getStringArray(R.array.pref_key_shader_filter_display_names)
+        }
+        val prefs = remember {
+            PreferenceManager.getDefaultSharedPreferences(context)
+        }
+        val currentFilter = remember {
+            prefs.getString(
+                context.getString(R.string.pref_key_shader_filter),
+                filterValues.first()
+            ) ?: filterValues.first()
+        }
+        val currentFilterIndex = filterValues.indexOf(currentFilter).coerceAtLeast(0)
+
+        LemuroidSettingsList(
+            title = { Text(text = stringResource(id = R.string.display_filter)) },
+            items = filterDisplayNames.toList(),
+            useSelectedValueAsSubtitle = true,
+            icon = {
+                Icon(
+                    painterResource(R.drawable.ic_menu_settings),
+                    contentDescription = stringResource(id = R.string.display_filter),
+                )
+            },
+            state = rememberMemoryIntSettingState(currentFilterIndex),
+            onItemSelected = { index, _ ->
+                prefs.edit()
+                    .putString(
+                        context.getString(R.string.pref_key_shader_filter),
+                        filterValues[index]
+                    )
+                    .apply()
             },
         )
 
