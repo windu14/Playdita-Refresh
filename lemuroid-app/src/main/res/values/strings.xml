@@ -152,6 +152,8 @@
     <string name="cheat_active_status">%1$d aktif</string>
     <string name="cheat_format_hint">Format didukung: CodeBreaker (82XXXXXX YYYY) atau GameShark (XXXXXXXX YYYYYYYY). Multi-baris didukung.</string>
     <string name="cheat_invalid_format">Format kode tidak valid. Gunakan format CodeBreaker (82XXXXXX YYYY) atau GameShark (XXXXXXXX YYYYYYYY).</string>
+    <string name="cheat_error_empty_name">Nama cheat tidak boleh kosong</string>
+    <string name="cheat_error_empty_code">Kode cheat tidak boleh kosong</string>
 
     <!-- Background Theme Strings -->
     <string name="game_menu_background_theme">Tema Background</string>

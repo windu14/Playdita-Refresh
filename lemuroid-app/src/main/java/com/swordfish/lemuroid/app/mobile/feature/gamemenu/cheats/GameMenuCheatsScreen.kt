@@ -295,6 +295,7 @@ private fun CheatEditDialog(
     var title by remember { mutableStateOf(initialCheat?.title ?: "") }
     var code by remember { mutableStateOf(initialCheat?.code ?: "") }
     var errorText by remember { mutableStateOf<String?>(null) }
+    val context = LocalContext.current
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -357,16 +358,16 @@ private fun CheatEditDialog(
                     val trimmedTitle = title.trim()
                     val trimmedCode = code.trim()
                     if (trimmedTitle.isEmpty()) {
-                        errorText = "Nama cheat tidak boleh kosong"
+                        errorText = context.getString(R.string.cheat_error_empty_name)
                         return@Button
                     }
                     if (trimmedCode.isEmpty()) {
-                        errorText = "Kode cheat tidak boleh kosong"
+                        errorText = context.getString(R.string.cheat_error_empty_code)
                         return@Button
                     }
                     val testCheat = GbaCheat(title = trimmedTitle, code = trimmedCode)
                     if (testCheat.normalizedLines.isEmpty()) {
-                        errorText = "Format kode tidak valid. Gunakan format CodeBreaker (82XXXXXX YYYY) atau GameShark (XXXXXXXX YYYYYYYY)."
+                        errorText = context.getString(R.string.cheat_invalid_format)
                         return@Button
                     }
                     onSave(trimmedTitle, trimmedCode)

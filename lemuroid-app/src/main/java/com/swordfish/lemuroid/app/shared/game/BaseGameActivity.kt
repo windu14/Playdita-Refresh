@@ -144,7 +144,7 @@ abstract class BaseGameActivity : ImmersiveActivity() {
             if (cheats.any { it.enabled }) {
                 runCatching {
                     baseGameScreenViewModel.retroGameView.waitGLEvent<GLRetroView.GLRetroEvents.FrameRendered>()
-                    val retroView = baseGameScreenViewModel.retroGameView.retroGameView
+                    val retroView = baseGameScreenViewModel.retroGameView.retroGameViewFlow()
                     cheatManager.applyCheatsToEmulator(game, retroView)
                 }.onFailure {
                     Timber.w(it, "Failed to apply cheats on startup")
@@ -429,9 +429,13 @@ abstract class BaseGameActivity : ImmersiveActivity() {
                 baseGameScreenViewModel.changeTiltConfiguration(tiltConfig!!)
             }
             if (data?.getBooleanExtra(GameMenuContract.RESULT_CHEATS_UPDATED, false) == true) {
-                runCatching {
-                    val retroView = baseGameScreenViewModel.retroGameView.retroGameView
-                    CheatManager(applicationContext).applyCheatsToEmulator(game, retroView)
+                lifecycleScope.launch {
+                    runCatching {
+                        val retroView = baseGameScreenViewModel.retroGameView.retroGameViewFlow()
+                        CheatManager(applicationContext).applyCheatsToEmulator(game, retroView)
+                    }.onFailure {
+                        Timber.w(it, "Failed to apply updated cheats")
+                    }
                 }
             }
         }
