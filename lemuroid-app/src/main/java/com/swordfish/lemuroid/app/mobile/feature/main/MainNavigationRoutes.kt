@@ -54,10 +54,6 @@ enum class MainRoute(
         route = "systems/home",
         titleId = R.string.title_systems,
     ),
-    SHOP(
-        route = "shop",
-        titleId = R.string.title_shop,
-    ),
     SYSTEM_GAMES(
         route = "systems/{metaSystemId}",
         titleId = R.string.title_games,
@@ -126,5 +122,4 @@ enum class MainNavigationRoutes(
     FAVORITES(MainRoute.FAVORITES, R.string.favorites, selectedIcon = Icons.Filled.Favorite, unselectedIcon = Icons.Outlined.FavoriteBorder, isCenterAction = false),
     HOME(MainRoute.HOME, R.string.title_home, selectedIcon = Icons.Filled.Home, unselectedIcon = Icons.Outlined.Home, isCenterAction = true),
     SYSTEMS(MainRoute.SYSTEMS, R.string.title_systems, selectedIcon = Icons.Filled.VideogameAsset, unselectedIcon = Icons.Outlined.VideogameAsset, isCenterAction = false),
-    SHOP(MainRoute.SHOP, R.string.title_shop, selectedDrawableRes = R.drawable.ic_shop, unselectedDrawableRes = R.drawable.ic_shop_outlined, isCenterAction = false),
 }

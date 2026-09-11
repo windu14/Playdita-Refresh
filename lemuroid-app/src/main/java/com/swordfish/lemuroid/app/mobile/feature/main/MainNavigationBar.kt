@@ -78,29 +78,29 @@ fun MainNavigationBar(
             val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
             val barShape = RoundedCornerShape(32.dp)
 
-            // Solid container color (100% opaque, truly solid)
-            val solidContainerColor = if (isDark) {
-                Color(0xFF1E2024)
+            // 2026 iOS Frosted Glass container
+            val glassContainerColor = if (isDark) {
+                Color(0xEB141722)
             } else {
-                Color(0xFFFFFFFF)
+                Color(0xF2FFFFFF)
             }
 
-            // Smooth inward depth effect bevel border
-            val topHighlight = if (isDark) Color.White.copy(alpha = 0.14f) else Color.White.copy(alpha = 0.90f)
-            val bottomShadow = if (isDark) Color.Black.copy(alpha = 0.45f) else Color.Black.copy(alpha = 0.10f)
+            // Specular highlight hairline border
+            val topHighlight = if (isDark) Color.White.copy(alpha = 0.32f) else Color.White.copy(alpha = 0.95f)
+            val bottomShadow = if (isDark) Color.White.copy(alpha = 0.06f) else Color.Black.copy(alpha = 0.08f)
 
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(66.dp)
                     .shadow(
-                        elevation = 14.dp,
+                        elevation = 16.dp,
                         shape = barShape,
-                        spotColor = if (isDark) Color.Black.copy(alpha = 0.60f) else Color.Black.copy(alpha = 0.14f),
-                        ambientColor = if (isDark) Color.Black.copy(alpha = 0.30f) else Color.Black.copy(alpha = 0.08f),
+                        spotColor = if (isDark) Color.Black.copy(alpha = 0.65f) else Color.Black.copy(alpha = 0.12f),
+                        ambientColor = if (isDark) Color.Black.copy(alpha = 0.35f) else Color.Black.copy(alpha = 0.06f),
                     ),
                 shape = barShape,
-                color = solidContainerColor,
+                color = glassContainerColor,
                 border = BorderStroke(
                     width = 1.dp,
                     brush = Brush.verticalGradient(
@@ -108,16 +108,16 @@ fun MainNavigationBar(
                     ),
                 ),
             ) {
-                // Subtle gradient overlay for smooth inward recessed depth
+                // Frosted gradient overlay for luminous depth
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(
                             brush = Brush.verticalGradient(
                                 colors = listOf(
-                                    (if (isDark) Color.White else Color.Transparent).copy(alpha = 0.03f),
+                                    (if (isDark) Color.White else Color.White).copy(alpha = if (isDark) 0.07f else 0.20f),
                                     Color.Transparent,
-                                    (if (isDark) Color.Black else Color.Black).copy(alpha = if (isDark) 0.04f else 0.02f),
+                                    (if (isDark) Color.Black else Color.Black).copy(alpha = if (isDark) 0.06f else 0.03f),
                                 ),
                             ),
                         ),

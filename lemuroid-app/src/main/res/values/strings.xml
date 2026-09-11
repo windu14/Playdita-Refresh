@@ -154,6 +154,7 @@
     <string name="cheat_invalid_format">Format kode tidak valid. Gunakan format CodeBreaker (82XXXXXX YYYY) atau GameShark (XXXXXXXX YYYYYYYY).</string>
     <string name="cheat_error_empty_name">Nama cheat tidak boleh kosong</string>
     <string name="cheat_error_empty_code">Kode cheat tidak boleh kosong</string>
+    <string name="cheat_error_only_master">Kode hanya berisi Master Code yang diabaikan. Masukkan efek kode lainnya.</string>
 
     <!-- Background Theme Strings -->
     <string name="game_menu_background_theme">Tema Background</string>
@@ -289,8 +290,11 @@
     <string name="shader_filter_names_auto">Otomatis (Rekomendasi)</string>
     <string name="shader_filter_names_sharp">Pixel Art Tajam (Sharp Nearest Neighbor)</string>
     <string name="shader_filter_names_smooth">Visual Halus (Bilinear Smoothing)</string>
-    <string name="shader_filter_names_crt">Filter CRT / Scanlines (Garis TV Tabung 90-an)</string>
+    <string name="shader_filter_names_hd_cut">GBA HD Pixel Edge (ScaleNx / CUT)</string>
+    <string name="shader_filter_names_hd_cut2">GBA Super HD (Kontur Halus CUT2)</string>
+    <string name="shader_filter_names_hd_cut3">GBA Ultra HD (Anti-Aliased CUT3)</string>
     <string name="shader_filter_names_lcd">Filter Game Boy Matrix (Dot Matrix / Pixel Grid LCD)</string>
+    <string name="shader_filter_names_crt">Filter CRT / Scanlines (Garis TV Tabung 90-an)</string>
 
     <string name="game_menu_touch_button_skin">Warna / Skin Tombol</string>
     <string name="touch_skin_classic">Kaca Klasik (Transparan Putih)</string>

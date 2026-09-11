@@ -47,16 +47,22 @@
         <item>auto</item>
         <item>sharp</item>
         <item>smooth</item>
-        <item>crt</item>
+        <item>hd_cut</item>
+        <item>hd_cut2</item>
+        <item>hd_cut3</item>
         <item>lcd</item>
+        <item>crt</item>
     </string-array>
 
     <string-array translatable="false" name="pref_key_shader_filter_display_names">
         <item>@string/shader_filter_names_auto</item>
         <item>@string/shader_filter_names_sharp</item>
         <item>@string/shader_filter_names_smooth</item>
-        <item>@string/shader_filter_names_crt</item>
+        <item>@string/shader_filter_names_hd_cut</item>
+        <item>@string/shader_filter_names_hd_cut2</item>
+        <item>@string/shader_filter_names_hd_cut3</item>
         <item>@string/shader_filter_names_lcd</item>
+        <item>@string/shader_filter_names_crt</item>
     </string-array>
     <string-array translatable="false" name="pref_key_theme_values">
         <item>system</item>

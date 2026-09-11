@@ -14,6 +14,7 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -22,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
@@ -38,6 +40,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.Color as ComposeColor
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -283,16 +289,33 @@ class GameMenuActivity : RetrogradeComponentActivity() {
         ) {
             val panelWidth =
                 remember(maxWidth) {
-                    minOf(maxWidth * 0.8f, 400f.dp)
+                    minOf(maxWidth * 0.82f, 420f.dp)
                 }
+
+            val panelShape = RoundedCornerShape(topStart = 28.dp, bottomStart = 28.dp)
+            val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+            val containerColor = if (isDark) ComposeColor(0xEB141722) else ComposeColor(0xF5FFFFFF)
+            val topHighlight = if (isDark) ComposeColor.White.copy(alpha = 0.32f) else ComposeColor.White.copy(alpha = 0.95f)
+            val bottomBorder = if (isDark) ComposeColor.White.copy(alpha = 0.05f) else ComposeColor.Black.copy(alpha = 0.08f)
+            val borderBrush = Brush.verticalGradient(listOf(topHighlight, bottomBorder))
 
             Surface(
                 modifier =
                     Modifier
-                        .padding()
                         .fillMaxHeight()
                         .width(panelWidth)
-                        .clip(MaterialTheme.shapes.large),
+                        .shadow(
+                            elevation = 16.dp,
+                            shape = panelShape,
+                            spotColor = if (isDark) ComposeColor.Black.copy(alpha = 0.70f) else ComposeColor.Black.copy(alpha = 0.15f),
+                        )
+                        .clip(panelShape)
+                        .border(
+                            width = 1.dp,
+                            brush = borderBrush,
+                            shape = panelShape,
+                        ),
+                color = containerColor,
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     content()

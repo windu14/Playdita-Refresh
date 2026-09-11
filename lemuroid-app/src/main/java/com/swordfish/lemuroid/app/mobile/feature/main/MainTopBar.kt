@@ -51,6 +51,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.swordfish.lemuroid.R
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
+import androidx.compose.ui.graphics.luminance
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ContainedLoadingIndicator
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ExperimentalMaterial3ExpressiveApi
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ExpressiveLinearProgressIndicator
@@ -98,6 +101,8 @@ fun LemuroidTopAppBar(
 ) {
     val context = LocalContext.current
 
+    val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+
     TopAppBar(
         title = {
             if (route == MainRoute.HOME) {
@@ -126,8 +131,8 @@ fun LemuroidTopAppBar(
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.background,
-            scrolledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
+            containerColor = Color.Transparent,
+            scrolledContainerColor = if (isDark) Color(0xEB141722) else Color(0xF2FFFFFF),
         ),
         navigationIcon = {
             AnimatedVisibility(
@@ -139,7 +144,9 @@ fun LemuroidTopAppBar(
                     onClick = { navController.popBackStack() },
                     modifier = Modifier
                         .padding(start = 4.dp)
-                        .clip(CircleShape),
+                        .clip(CircleShape)
+                        .background(if (isDark) Color(0x2EFFFFFF) else Color(0x1A000000))
+                        .border(1.dp, if (isDark) Color.White.copy(0.20f) else Color.White.copy(0.85f), CircleShape),
                 ) {
                     Icon(
                         Icons.AutoMirrored.Filled.ArrowBack,
@@ -170,6 +177,8 @@ fun LemuroidTopBarActions(
     saveSyncEnabled: Boolean,
     operationsInProgress: Boolean,
 ) {
+    val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -186,7 +195,8 @@ fun LemuroidTopBarActions(
                 enabled = !operationsInProgress,
                 modifier = Modifier
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+                    .background(if (isDark) Color(0x2EFFFFFF) else Color(0x1A000000))
+                    .border(1.dp, if (isDark) Color.White.copy(0.20f) else Color.White.copy(0.85f), CircleShape),
             ) {
                 Icon(
                     Icons.Outlined.CloudSync,
@@ -200,7 +210,8 @@ fun LemuroidTopBarActions(
                 onClick = { navController.navigate(MainRoute.SETTINGS.route) },
                 modifier = Modifier
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)),
+                    .background(if (isDark) Color(0x2EFFFFFF) else Color(0x1A000000))
+                    .border(1.dp, if (isDark) Color.White.copy(0.20f) else Color.White.copy(0.85f), CircleShape),
             ) {
                 Icon(
                     Icons.Outlined.Settings,

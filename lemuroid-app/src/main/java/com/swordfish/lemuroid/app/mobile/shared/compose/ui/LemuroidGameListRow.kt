@@ -1,6 +1,7 @@
 package com.swordfish.lemuroid.app.mobile.shared.compose.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -16,6 +17,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.dp
 import com.swordfish.lemuroid.lib.library.db.entity.Game
 
@@ -30,11 +35,23 @@ fun LemuroidGameListRow(
 ) {
     val rowShape = RoundedCornerShape(20.dp)
     val haptics = rememberLemuroidHaptics()
+    val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+
+    val containerColor = if (isDark) Color(0xEB181B26) else Color(0xF5FFFFFF)
+    val topHighlight = if (isDark) Color.White.copy(alpha = 0.25f) else Color.White.copy(alpha = 0.88f)
+    val bottomBorder = if (isDark) Color.White.copy(alpha = 0.04f) else Color.Black.copy(alpha = 0.07f)
+    val borderBrush = Brush.verticalGradient(listOf(topHighlight, bottomBorder))
 
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 4.dp)
+            .shadow(
+                elevation = 2.dp,
+                shape = rowShape,
+                spotColor = if (isDark) Color.Black.copy(alpha = 0.40f) else Color.Black.copy(alpha = 0.06f),
+            )
+            .border(1.dp, borderBrush, rowShape)
             .clip(rowShape)
             .combinedClickable(
                 onClick = {
@@ -47,8 +64,8 @@ fun LemuroidGameListRow(
                 },
             ),
         shape = rowShape,
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-        tonalElevation = 1.dp,
+        color = containerColor,
+        tonalElevation = 0.dp,
     ) {
         Row(
             modifier = Modifier

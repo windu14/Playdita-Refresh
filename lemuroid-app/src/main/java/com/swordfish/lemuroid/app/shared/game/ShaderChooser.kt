@@ -30,6 +30,26 @@ object ShaderChooser {
             "lcd" -> ShaderConfig.LCD
             "smooth" -> ShaderConfig.Default
             "sharp" -> ShaderConfig.Sharp
+            "hd_cut" ->
+                ShaderConfig.CUT(
+                    blendMinContrastEdge = 0.10f,
+                    blendMaxContrastEdge = 0.60f,
+                    blendMaxSharpness = 0.85f,
+                )
+            "hd_cut2" ->
+                ShaderConfig.CUT2(
+                    blendMinContrastEdge = 0.10f,
+                    blendMaxContrastEdge = 0.50f,
+                    blendMaxSharpness = 0.75f,
+                    hardEdgesSearchMaxError = 0.50f,
+                )
+            "hd_cut3" ->
+                ShaderConfig.CUT3(
+                    blendMinContrastEdge = 0.10f,
+                    blendMaxContrastEdge = 0.50f,
+                    blendMaxSharpness = 0.75f,
+                    hardEdgesSearchMaxError = 0.25f,
+                )
             else -> {
                 if (hdMode) {
                     getHDShaderForSystem(system, hdModeQuality)

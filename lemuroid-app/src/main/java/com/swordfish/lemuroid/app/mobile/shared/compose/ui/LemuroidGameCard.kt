@@ -35,6 +35,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.dp
 import com.swordfish.lemuroid.lib.library.db.entity.Game
 
@@ -47,28 +48,29 @@ fun LemuroidGameCard(
     onClick: () -> Unit = { },
     onLongClick: () -> Unit = { },
 ) {
-    val cardShape = RoundedCornerShape(20.dp)
+    val cardShape = RoundedCornerShape(22.dp)
     val haptics = rememberLemuroidHaptics()
+    val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
 
-    // Nintendo Switch style active cyan border & glow
+    // 2026 iOS Frosted Glass & Specular highlight
     val switchCyan = Color(0xFF00E5FF)
-    val defaultBorder = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)
+    val topHighlight = if (isDark) Color.White.copy(alpha = 0.28f) else Color.White.copy(alpha = 0.90f)
+    val bottomBorder = if (isDark) Color.White.copy(alpha = 0.05f) else Color.Black.copy(alpha = 0.08f)
+    val unselectedBrush = remember(isDark) { Brush.verticalGradient(listOf(topHighlight, bottomBorder)) }
+    val selectedBrush = remember { Brush.verticalGradient(listOf(switchCyan, switchCyan.copy(alpha = 0.8f))) }
 
-    val borderColor by animateColorAsState(
-        targetValue = if (isSelected) switchCyan else defaultBorder,
-        animationSpec = spring(stiffness = Spring.StiffnessMedium),
-        label = "BorderColor",
-    )
     val borderWidth by animateDpAsState(
         targetValue = if (isSelected) 3.5.dp else 1.dp,
         animationSpec = spring(stiffness = Spring.StiffnessMedium),
         label = "BorderWidth",
     )
     val cardElevation by animateDpAsState(
-        targetValue = if (isSelected) 10.dp else 2.dp,
+        targetValue = if (isSelected) 10.dp else 3.dp,
         animationSpec = spring(stiffness = Spring.StiffnessMedium),
         label = "Elevation",
     )
+
+    val containerColor = if (isDark) Color(0xEB181B26) else Color(0xF5FFFFFF)
 
     ElevatedCard(
         modifier = modifier
@@ -82,23 +84,27 @@ fun LemuroidGameCard(
                         ambientColor = switchCyan.copy(alpha = 0.25f),
                     )
                 } else {
-                    Modifier
+                    Modifier.shadow(
+                        elevation = 3.dp,
+                        shape = cardShape,
+                        spotColor = if (isDark) Color.Black.copy(alpha = 0.45f) else Color.Black.copy(alpha = 0.08f),
+                    )
                 }
             )
             .border(
                 width = borderWidth,
-                color = borderColor,
+                brush = if (isSelected) selectedBrush else unselectedBrush,
                 shape = cardShape,
             ),
         shape = cardShape,
         elevation = CardDefaults.elevatedCardElevation(
-            defaultElevation = cardElevation,
-            pressedElevation = 6.dp,
+            defaultElevation = 0.dp,
+            pressedElevation = 4.dp,
             focusedElevation = 4.dp,
             hoveredElevation = 4.dp,
         ),
         colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = containerColor,
         ),
     ) {
         Column(

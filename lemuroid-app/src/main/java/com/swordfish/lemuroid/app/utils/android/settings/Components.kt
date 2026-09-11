@@ -28,6 +28,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -122,6 +125,12 @@ fun LemuroidCardSettingsGroup(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val cardShape = RoundedCornerShape(24.dp)
+    val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+    val containerColor = if (isDark) Color(0xEB181B26) else Color(0xF5FFFFFF)
+    val topHighlight = if (isDark) Color.White.copy(alpha = 0.28f) else Color.White.copy(alpha = 0.92f)
+    val bottomBorder = if (isDark) Color.White.copy(alpha = 0.05f) else Color.Black.copy(alpha = 0.08f)
+    val borderBrush = androidx.compose.ui.graphics.Brush.verticalGradient(listOf(topHighlight, bottomBorder))
+
     Column(
         modifier =
             modifier
@@ -133,16 +142,16 @@ fun LemuroidCardSettingsGroup(
                 .fillMaxWidth()
                 .border(
                     width = 1.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f),
+                    brush = borderBrush,
                     shape = cardShape,
                 ),
             shape = cardShape,
             colors = CardDefaults.elevatedCardColors(
-                containerColor = MaterialTheme.colorScheme.surface,
+                containerColor = containerColor,
             ),
             elevation = CardDefaults.elevatedCardElevation(
-                defaultElevation = 2.dp,
-                pressedElevation = 4.dp,
+                defaultElevation = 3.dp,
+                pressedElevation = 6.dp,
             ),
         ) {
             if (title != null) {
