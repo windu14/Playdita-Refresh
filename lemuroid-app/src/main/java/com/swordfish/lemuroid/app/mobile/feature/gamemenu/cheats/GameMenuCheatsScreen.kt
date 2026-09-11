@@ -19,6 +19,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
@@ -33,6 +35,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -51,6 +54,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.shared.cheat.CheatManager
+import com.swordfish.lemuroid.app.shared.cheat.CheatPreset
+import com.swordfish.lemuroid.app.shared.cheat.CheatPresets
 import com.swordfish.lemuroid.app.shared.cheat.GbaCheat
 import com.swordfish.lemuroid.lib.library.db.entity.Game
 
@@ -65,6 +70,7 @@ fun GameMenuCheatsScreen(
 
     var showEditDialog by remember { mutableStateOf(false) }
     var editingCheat by remember { mutableStateOf<GbaCheat?>(null) }
+    var showPresetsDialog by remember { mutableStateOf(false) }
 
     fun refreshCheats() {
         cheatsList = cheatManager.getCheats(game)
@@ -78,7 +84,7 @@ fun GameMenuCheatsScreen(
     ) {
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Top Header card / action
+        // Top Header card / action with EXPERIMENTAL badge
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -88,11 +94,26 @@ fun GameMenuCheatsScreen(
         ) {
             val activeCount = cheatsList.count { it.enabled }
             Column {
-                Text(
-                    text = stringResource(R.string.game_menu_cheats),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = stringResource(R.string.game_menu_cheats),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Surface(
+                        color = MaterialTheme.colorScheme.errorContainer,
+                        shape = RoundedCornerShape(4.dp),
+                    ) {
+                        Text(
+                            text = "EXPERIMENTAL",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                        )
+                    }
+                }
                 Text(
                     text = stringResource(R.string.cheat_active_status, activeCount),
                     style = MaterialTheme.typography.bodySmall,
@@ -100,24 +121,78 @@ fun GameMenuCheatsScreen(
                 )
             }
 
-            Button(
-                onClick = {
-                    editingCheat = null
-                    showEditDialog = true
-                },
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp),
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(text = stringResource(R.string.cheat_add_button))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilledTonalButton(
+                    onClick = { showPresetsDialog = true },
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AutoAwesome,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(text = "Presets", style = MaterialTheme.typography.labelMedium)
+                }
+
+                Button(
+                    onClick = {
+                        editingCheat = null
+                        showEditDialog = true
+                    },
+                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(text = stringResource(R.string.cheat_add_button))
+                }
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        // Experimental notice & best practices card
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 6.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+            ),
+            shape = RoundedCornerShape(8.dp),
+        ) {
+            Row(
+                modifier = Modifier.padding(12.dp),
+                verticalAlignment = Alignment.Top,
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .size(20.dp)
+                        .padding(top = 2.dp),
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Column {
+                    Text(
+                        text = "Tips Cheat GBA (mGBA)",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        text = "• Jangan gunakan Master Code (M). mGBA menerapkan cheat langsung tanpa Master Code.\n• Memasukkan Master Code dapat membuat game hang/freeze.\n• Format didukung: CodeBreaker (8+4 digit) & GameShark (8+8 digit).",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
 
         if (cheatsList.isEmpty()) {
             Box(
@@ -150,13 +225,26 @@ fun GameMenuCheatsScreen(
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                     )
                     Spacer(modifier = Modifier.height(16.dp))
-                    FilledTonalButton(
-                        onClick = {
-                            editingCheat = null
-                            showEditDialog = true
-                        },
-                    ) {
-                        Text(stringResource(R.string.cheat_add_button))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilledTonalButton(
+                            onClick = { showPresetsDialog = true },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.AutoAwesome,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp),
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("Buka Preset Populer")
+                        }
+                        Button(
+                            onClick = {
+                                editingCheat = null
+                                showEditDialog = true
+                            },
+                        ) {
+                            Text(stringResource(R.string.cheat_add_button))
+                        }
                     }
                 }
             }
@@ -166,13 +254,13 @@ fun GameMenuCheatsScreen(
                     .fillMaxWidth()
                     .weight(1f),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(bottom = 16.dp),
+                contentPadding = PaddingValues(vertical = 8.dp),
             ) {
                 items(cheatsList, key = { it.id }) { cheat ->
-                    CheatCardItem(
+                    CheatItemCard(
                         cheat = cheat,
-                        onToggle = { isChecked ->
-                            cheatManager.toggleCheat(game, cheat.id, isChecked)
+                        onToggle = { newEnabled ->
+                            cheatManager.setCheatEnabled(game, cheat.id, newEnabled)
                             refreshCheats()
                         },
                         onEdit = {
@@ -194,12 +282,15 @@ fun GameMenuCheatsScreen(
             initialCheat = editingCheat,
             onDismiss = { showEditDialog = false },
             onSave = { title, code ->
-                if (editingCheat == null) {
-                    cheatManager.addCheat(game, title, code)
-                } else {
-                    cheatManager.updateCheat(
+                if (editingCheat != null) {
+                    cheatManager.saveCheat(
                         game,
                         editingCheat!!.copy(title = title, code = code),
+                    )
+                } else {
+                    cheatManager.saveCheat(
+                        game,
+                        GbaCheat(title = title, code = code, enabled = true),
                     )
                 }
                 showEditDialog = false
@@ -214,10 +305,118 @@ fun GameMenuCheatsScreen(
             } else null,
         )
     }
+
+    if (showPresetsDialog) {
+        CheatPresetsDialog(
+            game = game,
+            onDismiss = { showPresetsDialog = false },
+            onApplyPreset = { preset ->
+                cheatManager.saveCheat(
+                    game,
+                    GbaCheat(title = preset.title, code = preset.code, enabled = true),
+                )
+                refreshCheats()
+            },
+        )
+    }
 }
 
 @Composable
-private fun CheatCardItem(
+private fun CheatPresetsDialog(
+    game: Game,
+    onDismiss: () -> Unit,
+    onApplyPreset: (CheatPreset) -> Unit,
+) {
+    val presets = remember(game) { CheatPresets.getPresetsForGame(game) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.AutoAwesome,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = "Cheat Presets")
+            }
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(
+                    text = "Pilih preset yang telah diuji untuk game ini (bebas freeze):",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(320.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    items(presets) { preset ->
+                        Card(
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = preset.title,
+                                        style = MaterialTheme.typography.titleSmall,
+                                        fontWeight = FontWeight.Bold,
+                                    )
+                                    Text(
+                                        text = preset.description,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(
+                                        text = preset.code.trim().lines().first(),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontFamily = FontFamily.Monospace,
+                                        color = MaterialTheme.colorScheme.primary,
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Button(
+                                    onClick = {
+                                        onApplyPreset(preset)
+                                    },
+                                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
+                                ) {
+                                    Text("Tambah", style = MaterialTheme.typography.labelMedium)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Tutup")
+            }
+        },
+    )
+}
+
+@Composable
+private fun CheatItemCard(
     cheat: GbaCheat,
     onToggle: (Boolean) -> Unit,
     onEdit: () -> Unit,
@@ -229,25 +428,48 @@ private fun CheatCardItem(
             .clickable { onEdit() },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+            containerColor = if (cheat.enabled) {
+                MaterialTheme.colorScheme.surface
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            },
         ),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
+                .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(
                 modifier = Modifier.weight(1f),
             ) {
-                Text(
-                    text = cheat.title,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = cheat.title,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        color = if (cheat.enabled) {
+                            MaterialTheme.colorScheme.onSurface
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                    )
+                    if (cheat.hasMasterCodes) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Surface(
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                            shape = RoundedCornerShape(4.dp),
+                        ) {
+                            Text(
+                                text = "M skipped",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp),
+                            )
+                        }
+                    }
+                }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = cheat.code.trim(),
@@ -297,6 +519,8 @@ private fun CheatEditDialog(
     var errorText by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
 
+    val testCheat = remember(title, code) { GbaCheat(title = title, code = code) }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -337,6 +561,21 @@ private fun CheatEditDialog(
                     modifier = Modifier.fillMaxWidth(),
                 )
 
+                if (testCheat.hasMasterCodes) {
+                    Surface(
+                        color = MaterialTheme.colorScheme.secondaryContainer,
+                        shape = RoundedCornerShape(6.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(
+                            text = "ℹ️ Master Code (0000... / 9...) terdeteksi dan diabaikan otomatis agar game tidak macet/freeze. Cheat efek tetap bekerja langsung!",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            modifier = Modifier.padding(8.dp),
+                        )
+                    }
+                }
+
                 Text(
                     text = stringResource(R.string.cheat_format_hint),
                     style = MaterialTheme.typography.bodySmall,
@@ -365,8 +604,8 @@ private fun CheatEditDialog(
                         errorText = context.getString(R.string.cheat_error_empty_code)
                         return@Button
                     }
-                    val testCheat = GbaCheat(title = trimmedTitle, code = trimmedCode)
-                    if (testCheat.normalizedLines.isEmpty()) {
+                    val validationCheat = GbaCheat(title = trimmedTitle, code = trimmedCode)
+                    if (validationCheat.normalizedLines.isEmpty()) {
                         errorText = context.getString(R.string.cheat_invalid_format)
                         return@Button
                     }

@@ -43,6 +43,15 @@ import com.swordfish.lemuroid.app.shared.game.RetroShaderManager
 import com.swordfish.lemuroid.app.shared.game.TouchButtonSkin
 import com.swordfish.lemuroid.app.shared.game.TouchButtonSkinManager
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsList
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.font.FontWeight
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsMenuLink
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsSwitch
 import kotlin.reflect.KFunction1
@@ -79,7 +88,27 @@ fun GameMenuHomeScreen(
         }
 
         LemuroidSettingsMenuLink(
-            title = { Text(text = stringResource(id = R.string.game_menu_cheats)) },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = stringResource(id = R.string.game_menu_cheats))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Surface(
+                        color = MaterialTheme.colorScheme.errorContainer,
+                        shape = RoundedCornerShape(4.dp),
+                    ) {
+                        Text(
+                            text = "EXPERIMENTAL",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                        )
+                    }
+                }
+            },
+            subtitle = {
+                Text(text = "GameShark / CodeBreaker (mGBA direct)")
+            },
             icon = {
                 Icon(
                     painterResource(R.drawable.ic_menu_cheat),

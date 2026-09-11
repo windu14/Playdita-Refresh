@@ -72,6 +72,17 @@ class CheatManager(context: Context) {
         }
     }
 
+    fun saveCheat(game: Game, cheat: GbaCheat) {
+        val current = getCheats(game).toMutableList()
+        val index = current.indexOfFirst { it.id == cheat.id }
+        if (index != -1) {
+            current[index] = cheat
+        } else {
+            current.add(cheat)
+        }
+        saveCheats(game, current)
+    }
+
     fun toggleCheat(game: Game, cheatId: String, isEnabled: Boolean) {
         val current = getCheats(game).toMutableList()
         val index = current.indexOfFirst { it.id == cheatId }
@@ -79,6 +90,10 @@ class CheatManager(context: Context) {
             current[index] = current[index].copy(enabled = isEnabled)
             saveCheats(game, current)
         }
+    }
+
+    fun setCheatEnabled(game: Game, cheatId: String, isEnabled: Boolean) {
+        toggleCheat(game, cheatId, isEnabled)
     }
 
     fun deleteCheat(game: Game, cheatId: String) {
@@ -114,15 +129,13 @@ class CheatManager(context: Context) {
 
                 var slotIndex = 0
                 enabledCheats.forEach { cheat ->
-                    val lines = cheat.normalizedLines
-                    if (lines.isNotEmpty()) {
-                        // mGBA supports multiline cheats joined with '+'
-                        val joinedCode = lines.joinToString("+")
-                        Timber.d("Setting cheat slot #$slotIndex [${cheat.title}]: $joinedCode")
-                        LibretroDroid.setCheat(slotIndex++, true, joinedCode)
+                    val lines = cheat.executableLines
+                    lines.forEach { line ->
+                        Timber.d("Setting cheat slot #$slotIndex [${cheat.title}]: $line")
+                        LibretroDroid.setCheat(slotIndex++, true, line)
                     }
                 }
-                Timber.i("Successfully applied $slotIndex cheat(s) to emulator core")
+                Timber.i("Successfully applied $slotIndex cheat line(s) to emulator core")
             } catch (t: Throwable) {
                 Timber.e(t, "Error applying cheats on emulation thread")
             }

@@ -8,6 +8,10 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -173,6 +177,10 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
                         modifier = Modifier.fillMaxSize(),
                         navController = navController,
                         startDestination = MainRoute.HOME.route,
+                        enterTransition = { fadeIn(animationSpec = tween(220, easing = FastOutSlowInEasing)) },
+                        exitTransition = { fadeOut(animationSpec = tween(180, easing = FastOutSlowInEasing)) },
+                        popEnterTransition = { fadeIn(animationSpec = tween(220, easing = FastOutSlowInEasing)) },
+                        popExitTransition = { fadeOut(animationSpec = tween(180, easing = FastOutSlowInEasing)) },
                     ) {
                     composable(MainRoute.HOME) {
                         HomeScreen(

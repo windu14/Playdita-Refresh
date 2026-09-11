@@ -15,7 +15,6 @@ data class GbaCheat(
      * exactly according to what mGBA's libretro parser expects:
      * - CodeBreaker / GameShark SP: "XXXXXXXX YYYY" (8 hex digits, 1 space, 4 hex digits = 13 chars)
      * - GameShark / Action Replay v3: "XXXXXXXX YYYYYYYY" (8 hex digits, 1 space, 8 hex digits = 17 chars)
-     * - Direct RAM / VBA: "XXXXXXXX:YYYY" (8 hex address, colon, 4 hex value = 13 chars)
      */
     val normalizedLines: List<String>
         get() {
@@ -25,12 +24,44 @@ data class GbaCheat(
         }
 
     /**
+     * Executable lines passed to LibretroDroid.
+     * Master codes (Game ID 0000... or Hook 9... / 1000... 0007) are intentionally
+     * filtered out because mGBA directly writes memory every frame without needing Master Codes.
+     * Passing Master Codes to mGBA triggers ROM breakpoints or decryption tables that cause
+     * the emulator to freeze or corrupt memory writes!
+     */
+    val executableLines: List<String>
+        get() {
+            return normalizedLines.filterNot { isMasterCode(it) }
+        }
+
+    /**
+     * Whether this cheat code includes Master Code lines that are safely skipped.
+     */
+    val hasMasterCodes: Boolean
+        get() = normalizedLines.any { isMasterCode(it) }
+
+    /**
      * Joined format using '+' separator, which is the canonical Libretro multiline cheat format.
      */
     val formattedCode: String
-        get() = normalizedLines.joinToString("+")
+        get() = executableLines.joinToString("+")
 
     companion object {
+        /**
+         * Detects Master Codes (Enable Code / [M]) which cause freezes in mGBA.
+         * - CodeBreaker Game ID / Master: starts with "0000" (e.g. 000021FA 000A)
+         * - CodeBreaker Master Line 2: starts with "1000" and ends with "0007"
+         * - CodeBreaker / GameShark Hook: starts with "9" (e.g. 9XXXXXXX YYYY)
+         */
+        fun isMasterCode(line: String): Boolean {
+            val trimmed = line.trim().uppercase()
+            if (trimmed.startsWith("0000") && (trimmed.length == 13 || trimmed.length == 14 || trimmed.length == 17)) return true
+            if (trimmed.startsWith("1000") && trimmed.endsWith("0007")) return true
+            if (trimmed.startsWith("9") && (trimmed.length == 13 || trimmed.length == 17)) return true
+            return false
+        }
+
         fun normalizeLine(rawLine: String): String? {
             val line = rawLine.trim()
             if (line.isEmpty() || line.startsWith("#") || line.startsWith("//")) {
@@ -47,18 +78,26 @@ data class GbaCheat(
                 val value = vbaMatch.groupValues[2].uppercase()
                 return when (value.length) {
                     2 -> {
-                        // 8-bit RAM write (e.g. 02025ABC:01 -> CodeBreaker 32025ABC 0001)
+                        // 8-bit RAM write: convert to CodeBreaker 32... or 33...
                         if (addr.startsWith("02")) {
                             "32${addr.substring(2)} 00$value"
-                        } else if (addr.startsWith("03")) {
-                            "33${addr.substring(2)} 00$value"
                         } else {
-                            "$addr:00$value"
+                            "33${addr.substring(2)} 00$value"
                         }
                     }
-                    4 -> "$addr:$value" // Standard 13-character VBA format recognized by mGBA
+                    4 -> {
+                        // 16-bit RAM write: convert to CodeBreaker 82... or 83...
+                        if (addr.startsWith("02")) {
+                            "82${addr.substring(2)} $value"
+                        } else {
+                            "83${addr.substring(2)} $value"
+                        }
+                    }
                     8 -> "$addr $value" // 17-char GameShark/ActionReplay
-                    else -> "$addr:$value"
+                    else -> {
+                        val padded = value.padStart(4, '0').takeLast(4)
+                        "33${addr.substring(2)} $padded"
+                    }
                 }
             }
 
@@ -84,10 +123,8 @@ data class GbaCheat(
                         val value = cleanHex.substring(8).uppercase()
                         return if (addr.startsWith("02")) {
                             "32${addr.substring(2)} 00$value"
-                        } else if (addr.startsWith("03")) {
-                            "33${addr.substring(2)} 00$value"
                         } else {
-                            "$addr:00$value"
+                            "33${addr.substring(2)} 00$value"
                         }
                     }
                 }
@@ -107,4 +144,3 @@ data class GbaCheat(
         }
     }
 }
-

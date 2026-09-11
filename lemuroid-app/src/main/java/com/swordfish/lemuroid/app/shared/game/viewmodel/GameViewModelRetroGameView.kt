@@ -202,20 +202,22 @@ class GameViewModelRetroGameView(
     }
 
     fun updateShader(screenFilter: String) {
-        val currentState = gameState.value
-        if (currentState is GameState.Loaded) {
-            scope.launch {
-                val hdMode = settingsManager.hdMode()
-                val hdModeQuality = settingsManager.hdModeQuality()
-                val shader = ShaderChooser.getShaderForSystem(
-                    appContext,
-                    hdMode,
-                    hdModeQuality,
-                    screenFilter,
-                    system,
-                )
+        scope.launch {
+            val hdMode = settingsManager.hdMode()
+            val hdModeQuality = settingsManager.hdModeQuality()
+            val shader = ShaderChooser.getShaderForSystem(
+                appContext,
+                hdMode,
+                hdModeQuality,
+                screenFilter,
+                system,
+            )
+            val currentState = gameState.value
+            if (currentState is GameState.Loaded) {
                 currentState.retroViewData.shader = shader
             }
+            retroGameView?.shader = shader
+            Timber.i("Applied new shader to running retroGameView: $shader (screenFilter: $screenFilter)")
         }
     }
 
