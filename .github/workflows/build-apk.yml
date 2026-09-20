@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   build:
-    name: Build APK
+    name: Build & Publish APK
     runs-on: ubuntu-latest
 
     steps:
@@ -33,78 +33,128 @@ jobs:
       - name: Grant Execute Permission for Gradlew
         run: chmod +x gradlew
 
-      - name: Prepare Single Module and Keystore
+      - name: Prepare Keystore and Module Structure
         run: |
-          # 1. Setup debug keystore
+          # 1. Setup debug keystore if base64 file exists
           if [ -f debug.keystore.base64 ] && [ ! -f debug.keystore ]; then
             base64 -d debug.keystore.base64 > debug.keystore || true
           fi
 
-          # 2. Consolidate lemuroid-app into app cleanly
-          if [ -d "lemuroid-app" ]; then
-            echo "Merging lemuroid-app into app..."
+          # 2. Consolidate lemuroid-app into app cleanly if needed
+          if [ -d "lemuroid-app" ] && [ ! -f "app/build.gradle.kts" ]; then
+            echo "Consolidating lemuroid-app into app..."
             mkdir -p app
-            # Copy all base files from lemuroid-app to app without overwriting existing files in app
             cp -rn lemuroid-app/* app/ 2>/dev/null || true
-            # Remove lemuroid-app to prevent duplicate resource and module conflicts
             rm -rf lemuroid-app
           fi
 
       - name: Build Debug APK
         run: ./gradlew :app:assembleDebug --stacktrace
 
-      - name: Upload Debug APK Artifact
+      - name: Locate and Package APK
+        id: prepare_apk
+        run: |
+          mkdir -p release-artifacts
+          # Find the generated debug apk anywhere in build outputs
+          APK_FILE=$(find . -type f -name "*debug*.apk" -not -path "*/intermediates/*" | head -n 1)
+          if [ -z "$APK_FILE" ]; then
+            APK_FILE=$(find . -type f -name "*.apk" -not -path "*/intermediates/*" | head -n 1)
+          fi
+
+          if [ -z "$APK_FILE" ] || [ ! -f "$APK_FILE" ]; then
+            echo "::error::File APK tidak ditemukan setelah build selesai!"
+            exit 1
+          fi
+
+          echo "APK ditemukan: $APK_FILE"
+          APK_NAME="Playdita-debug.apk"
+          cp "$APK_FILE" "release-artifacts/$APK_NAME"
+          APK_SIZE=$(du -h "release-artifacts/$APK_NAME" | cut -f1)
+
+          echo "apk_path=release-artifacts/$APK_NAME" >> "$GITHUB_OUTPUT"
+          echo "apk_name=$APK_NAME" >> "$GITHUB_OUTPUT"
+          echo "apk_size=$APK_SIZE" >> "$GITHUB_OUTPUT"
+
+      - name: Upload APK as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Playdita-Debug-APK
-          path: app/build/outputs/apk/debug/*.apk
+          path: release-artifacts/Playdita-debug.apk
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
 
-  release:
-    name: Publish Release
-    needs: [ build ]
-    if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: gradle
-
-      - name: Grant Execute Permission for Gradlew
-        run: chmod +x gradlew
-
-      - name: Prepare Single Module and Keystore
-        run: |
-          if [ -f debug.keystore.base64 ] && [ ! -f debug.keystore ]; then
-            base64 -d debug.keystore.base64 > debug.keystore || true
-          fi
-
-          if [ -d "lemuroid-app" ]; then
-            echo "Merging lemuroid-app into app..."
-            mkdir -p app
-            cp -rn lemuroid-app/* app/ 2>/dev/null || true
-            rm -rf lemuroid-app
-          fi
-
-      - name: Build APK for Release
-        run: ./gradlew :app:assembleDebug --stacktrace
-
-      - name: Publish to GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'latest' }}
-          name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'Latest Build (Auto)' }}
-          files: app/build/outputs/apk/debug/*.apk
-          draft: false
-          prerelease: false
-          generate_release_notes: true
+      - name: Publish to GitHub Releases (Direct APK Download)
+        if: github.event_name != 'pull_request'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG_NAME="latest"
+          RELEASE_TITLE="Playdita Latest Build (Direct APK)"
+          IS_PRERELEASE=true
+
+          if [[ "${{ github.ref }}" =~ ^refs/tags/v.* ]]; then
+            TAG_NAME="${{ github.ref_name }}"
+            RELEASE_TITLE="Playdita ${{ github.ref_name }}"
+            IS_PRERELEASE=false
+          fi
+
+          RELEASE_NOTES="### 🎮 Playdita Android APK (Download Langsung)
+
+          Unduh file APK langsung di bawah ini tanpa perlu mengekstrak file ZIP:
+          - **Nama File:** \`${{ steps.prepare_apk.outputs.apk_name }}\`
+          - **Ukuran:** ${{ steps.prepare_apk.outputs.apk_size }}
+          - **Commit:** ${{ github.sha }}
+          - **Waktu Build:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+
+          #### Cara Install:
+          1. Scroll ke bagian bawah rilis ini ke bagian **Assets**.
+          2. Klik **\`${{ steps.prepare_apk.outputs.apk_name }}\`** untuk mendownload langsung.
+          3. Pasang/install file APK pada smartphone Android Anda."
+
+          if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            echo "Mengupdate asset rilis $TAG_NAME..."
+            gh release upload "$TAG_NAME" "release-artifacts/${{ steps.prepare_apk.outputs.apk_name }}" --clobber || true
+          else
+            echo "Membuat rilis baru $TAG_NAME..."
+            gh release create "$TAG_NAME" "release-artifacts/${{ steps.prepare_apk.outputs.apk_name }}" \
+              --title "$RELEASE_TITLE" \
+              --notes "$RELEASE_NOTES" \
+              --prerelease=$IS_PRERELEASE || true
+          fi
+
+      - name: Add Step Summary with Download Instructions
+        run: |
+          REPO_URL="${{ github.server_url }}/${{ github.repository }}"
+          LATEST_RELEASE_URL="$REPO_URL/releases/tag/latest"
+          if [[ "${{ github.ref }}" =~ ^refs/tags/v.* ]]; then
+            LATEST_RELEASE_URL="$REPO_URL/releases/tag/${{ github.ref_name }}"
+          fi
+
+          cat << EOF >> $GITHUB_STEP_SUMMARY
+          # 🎮 Playdita APK Berhasil Dibuat!
+
+          Build aplikasi Playdita telah selesai dengan sukses.
+
+          ---
+
+          ### 📱 Opsi 1: Download Langsung APK (Direkomendasikan untuk HP & PC)
+          Tidak perlu mengekstrak file ZIP, langsung dapat file \`.apk\`:
+          👉 **[Klik Di Sini Untuk Download APK Langsung di GitHub Releases]($LATEST_RELEASE_URL)**
+          *(Buka tautan di atas, gulir ke bagian **Assets**, lalu klik **\`${{ steps.prepare_apk.outputs.apk_name }}\`**)*
+
+          ---
+
+          ### 📦 Opsi 2: Download dari Bagian Artifacts (Di Halaman Ini)
+          Jika Anda ingin mendownload dari daftar **Artifacts** di bawah:
+          1. **Jika Anda menggunakan PC / Laptop:**
+             - Klik langsung pada teks nama artifact **\`Playdita-Debug-APK\`** (teks nama tersebut merupakan link unduhan). File akan terunduh sebagai ZIP.
+          2. **Jika Anda menggunakan HP / Smartphone:**
+             - Di tampilan browser mobile, GitHub tidak menyediakan tombol unduh terpisah dan sering kali teks artifact tidak merespons sentuhan.
+             - **Solusi:** Buka menu browser Anda (ikon titik tiga di kanan atas) $\rightarrow$ aktifkan **"Situs Desktop" / "Desktop site"**, lalu sentuh nama **\`Playdita-Debug-APK\`**.
+             - Atau gunakan **Opsi 1** di atas untuk mengunduh langsung file APK tanpa ekstrak ZIP!
+
+          ---
+          - **File:** \`${{ steps.prepare_apk.outputs.apk_name }}\`
+          - **Ukuran:** \`${{ steps.prepare_apk.outputs.apk_size }}\`
+          EOF
