@@ -3,13 +3,17 @@ package com.swordfish.lemuroid.app.mobile.shared.compose.ui
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -21,75 +25,109 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * 2026 iOS-Inspired Glassmorphic Design System Tokens & Modifiers.
+ * 2026 iOS-Inspired "Perfect Glassmorphism" Design System Tokens & Modifiers.
  * Engineered for Jetpack Compose & Material 3 with ultra-smooth translucent acrylic surfaces,
- * specular highlight hairline borders, and fluid continuous curvature.
+ * specular highlight hairline borders, organic refractive gradients, and fluid continuous curvature.
  */
 object Glassmorphism {
-    // Standard Corner Radii for 2026 Glassmorphic aesthetic
-    val CardShape = RoundedCornerShape(20.dp)
-    val LargeCardShape = RoundedCornerShape(24.dp)
-    val PillShape = RoundedCornerShape(32.dp)
-    val DialogShape = RoundedCornerShape(26.dp)
-    val ChipShape = RoundedCornerShape(14.dp)
-    val SmallShape = RoundedCornerShape(10.dp)
+    // 2026 Continuous Curvature Squircles
+    val CardShape = RoundedCornerShape(22.dp)
+    val LargeCardShape = RoundedCornerShape(26.dp)
+    val IslandShape = RoundedCornerShape(34.dp)
+    val PillShape = CircleShape
+    val DialogShape = RoundedCornerShape(28.dp)
+    val ChipShape = RoundedCornerShape(16.dp)
+    val SmallShape = RoundedCornerShape(12.dp)
+
+    // iOS 2026 Vibrant Neon & Pastel Accents
+    val NeonCyan = Color(0xFF00E5FF)
+    val NeonViolet = Color(0xFF8B5CF6)
+    val ElectricBlue = Color(0xFF0A84FF)
+    val SunsetOrange = Color(0xFFFF9F0A)
+    val EmeraldGreen = Color(0xFF30D158)
 
     @Composable
     fun isDarkSurface(): Boolean {
         return MaterialTheme.colorScheme.surface.luminance() < 0.5f || isSystemInDarkTheme()
     }
 
+    /**
+     * Frosted Glass acrylic background color with calibrated opacity for depth.
+     */
     @Composable
-    fun containerColor(isDark: Boolean = isDarkSurface(), alpha: Float = 0.82f): Color {
+    fun containerColor(isDark: Boolean = isDarkSurface(), alpha: Float = if (isDark) 0.84f else 0.88f): Color {
         return if (isDark) {
-            Color(0xFF141722).copy(alpha = alpha)
+            Color(0xFF141724).copy(alpha = alpha)
         } else {
-            Color(0xFFFFFFFF).copy(alpha = alpha)
+            Color(0xFFFCFDFF).copy(alpha = alpha)
         }
     }
 
     @Composable
-    fun elevatedContainerColor(isDark: Boolean = isDarkSurface(), alpha: Float = 0.88f): Color {
+    fun elevatedContainerColor(isDark: Boolean = isDarkSurface(), alpha: Float = if (isDark) 0.90f else 0.94f): Color {
         return if (isDark) {
-            Color(0xFF1C2030).copy(alpha = alpha)
+            Color(0xFF1B2032).copy(alpha = alpha)
         } else {
-            Color(0xFFF6F8FC).copy(alpha = alpha)
+            Color(0xFFF4F6FB).copy(alpha = alpha)
         }
     }
 
+    /**
+     * Floating Island / Dynamic Dock acrylic color.
+     */
+    @Composable
+    fun islandContainerColor(isDark: Boolean = isDarkSurface()): Color {
+        return if (isDark) {
+            Color(0xEB131726)
+        } else {
+            Color(0xF4FFFFFF)
+        }
+    }
+
+    /**
+     * Beveled specular hairline edge brush: bright reflection at top, transparent/dark rim at bottom.
+     */
     @Composable
     fun borderBrush(isDark: Boolean = isDarkSurface()): Brush {
-        val topHighlight = if (isDark) Color.White.copy(alpha = 0.28f) else Color.White.copy(alpha = 0.90f)
-        val bottomBorder = if (isDark) Color.White.copy(alpha = 0.05f) else Color.Black.copy(alpha = 0.08f)
+        val topHighlight = if (isDark) Color.White.copy(alpha = 0.32f) else Color.White.copy(alpha = 0.95f)
+        val middleSheen = if (isDark) Color.White.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.40f)
+        val bottomBorder = if (isDark) Color.White.copy(alpha = 0.04f) else Color.Black.copy(alpha = 0.08f)
         return Brush.verticalGradient(
-            listOf(topHighlight, bottomBorder),
+            listOf(topHighlight, middleSheen, bottomBorder),
         )
     }
 
+    /**
+     * Active/focused glowing border brush with iOS 2026 neon reflection.
+     */
     @Composable
     fun activeBorderBrush(isDark: Boolean = isDarkSurface()): Brush {
-        val primary = MaterialTheme.colorScheme.primary
-        val topHighlight = primary.copy(alpha = if (isDark) 0.85f else 0.70f)
-        val bottomBorder = primary.copy(alpha = if (isDark) 0.25f else 0.20f)
         return Brush.verticalGradient(
-            listOf(topHighlight, bottomBorder),
+            listOf(
+                NeonCyan.copy(alpha = if (isDark) 0.95f else 0.85f),
+                NeonViolet.copy(alpha = if (isDark) 0.70f else 0.60f),
+            ),
         )
     }
 
+    /**
+     * Specular light sweep gradient across frosted acrylic surface.
+     */
     @Composable
     fun specularOverlayBrush(isDark: Boolean = isDarkSurface()): Brush {
         return Brush.verticalGradient(
             colors = listOf(
-                (if (isDark) Color.White else Color.White).copy(alpha = if (isDark) 0.06f else 0.15f),
+                (if (isDark) Color.White else Color.White).copy(alpha = if (isDark) 0.08f else 0.22f),
+                (if (isDark) Color.White else Color.White).copy(alpha = if (isDark) 0.02f else 0.06f),
                 Color.Transparent,
-                (if (isDark) Color.Black else Color.Black).copy(alpha = if (isDark) 0.05f else 0.02f),
+                (if (isDark) Color.Black else Color.Black).copy(alpha = if (isDark) 0.06f else 0.02f),
             ),
         )
     }
 }
 
 /**
- * Applies a 2026 iOS-style frosted glass effect with specular highlight border,
+ * Applies 2026 iOS-style frosted glass effect with specular highlight border,
  * translucent container, soft ambient shadow, and rounded corners.
  */
 @Composable
@@ -98,11 +136,11 @@ fun Modifier.glassmorphicCard(
     elevation: Dp = 6.dp,
     isDark: Boolean = Glassmorphism.isDarkSurface(),
     borderWidth: Dp = 1.dp,
-    alpha: Float = 0.82f,
+    alpha: Float = if (isDark) 0.84f else 0.88f,
 ): Modifier {
     val container = Glassmorphism.containerColor(isDark, alpha)
     val borderStroke = Glassmorphism.borderBrush(isDark)
-    val shadowColor = if (isDark) Color.Black.copy(alpha = 0.40f) else Color.Black.copy(alpha = 0.07f)
+    val shadowColor = if (isDark) Color.Black.copy(alpha = 0.45f) else Color.Black.copy(alpha = 0.08f)
 
     return this
         .shadow(
@@ -118,7 +156,7 @@ fun Modifier.glassmorphicCard(
 }
 
 /**
- * A ready-to-use 2026 iOS frosted glass surface container.
+ * A ready-to-use 2026 iOS frosted glass surface container with specular reflection.
  */
 @Composable
 fun GlassmorphicCard(
@@ -129,9 +167,19 @@ fun GlassmorphicCard(
     isDark: Boolean = Glassmorphism.isDarkSurface(),
     borderBrush: Brush = Glassmorphism.borderBrush(isDark),
     containerColor: Color = Glassmorphism.containerColor(isDark),
+    onClick: (() -> Unit)? = null,
     content: @Composable BoxScope.() -> Unit,
 ) {
     val shadowColor = if (isDark) Color.Black.copy(alpha = 0.45f) else Color.Black.copy(alpha = 0.08f)
+    val clickableModifier = if (onClick != null) {
+        Modifier.clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = ripple(color = MaterialTheme.colorScheme.primary),
+            onClick = onClick,
+        )
+    } else {
+        Modifier
+    }
 
     Box(
         modifier = modifier
@@ -144,9 +192,10 @@ fun GlassmorphicCard(
             )
             .clip(shape)
             .background(containerColor)
-            .border(width = borderWidth, brush = borderBrush, shape = shape),
+            .border(width = borderWidth, brush = borderBrush, shape = shape)
+            .then(clickableModifier),
     ) {
-        // Subtle specular highlight gradient overlay
+        // Specular highlight gradient overlay for realistic frosted glass refraction
         Box(
             modifier = Modifier
                 .matchParentSize()

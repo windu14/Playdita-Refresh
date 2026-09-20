@@ -1,6 +1,6 @@
 {
   "name": "Playdita",
-  "description": "Imported from GitHub: windu14/playdita",
+  "description": "Playdita Retro Emulator with iOS 2026 Glassmorphism UI and bold Lucide iconography",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"

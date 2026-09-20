@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
@@ -38,6 +39,7 @@ import com.alorma.compose.settings.storage.base.SettingValueState
 import com.alorma.compose.settings.ui.SettingsMenuLink
 import com.alorma.compose.settings.ui.SettingsSlider
 import com.alorma.compose.settings.ui.SettingsSwitch
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.Glassmorphism
 import kotlin.math.roundToInt
 
 @Composable
@@ -124,22 +126,25 @@ fun LemuroidCardSettingsGroup(
     title: @Composable (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val cardShape = RoundedCornerShape(24.dp)
+    val cardShape = Glassmorphism.LargeCardShape
     val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
-    val containerColor = if (isDark) Color(0xEB181B26) else Color(0xF5FFFFFF)
-    val topHighlight = if (isDark) Color.White.copy(alpha = 0.28f) else Color.White.copy(alpha = 0.92f)
-    val bottomBorder = if (isDark) Color.White.copy(alpha = 0.05f) else Color.Black.copy(alpha = 0.08f)
-    val borderBrush = androidx.compose.ui.graphics.Brush.verticalGradient(listOf(topHighlight, bottomBorder))
+    val containerColor = Glassmorphism.containerColor(isDark, alpha = if (isDark) 0.88f else 0.92f)
+    val borderBrush = Glassmorphism.borderBrush(isDark)
 
     Column(
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 2.dp),
+                .padding(horizontal = 16.dp, vertical = 3.dp),
     ) {
         ElevatedCard(
             modifier = Modifier
                 .fillMaxWidth()
+                .shadow(
+                    elevation = 4.dp,
+                    shape = cardShape,
+                    spotColor = if (isDark) Color.Black.copy(alpha = 0.45f) else Color.Black.copy(alpha = 0.08f),
+                )
                 .border(
                     width = 1.dp,
                     brush = borderBrush,
@@ -150,15 +155,25 @@ fun LemuroidCardSettingsGroup(
                 containerColor = containerColor,
             ),
             elevation = CardDefaults.elevatedCardElevation(
-                defaultElevation = 3.dp,
-                pressedElevation = 6.dp,
+                defaultElevation = 0.dp,
+                pressedElevation = 4.dp,
             ),
         ) {
-            if (title != null) {
-                SettingsGroupTitleSmall(title)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Glassmorphism.specularOverlayBrush(isDark)),
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    if (title != null) {
+                        SettingsGroupTitleSmall(title)
+                    }
+                    content()
+                    Spacer(modifier = Modifier.height(6.dp))
+                }
             }
-            content()
-            Spacer(modifier = Modifier.height(6.dp))
         }
     }
 }

@@ -1,75 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
-    android:viewportWidth="127.064445"
-    android:viewportHeight="127.064445">
-  <group android:translateX="6.3532224"
-      android:translateY="6.3532224">
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Subtle frosted glass controller body fill -->
     <path
-        android:pathData="M37.671,57.065m-12.926,0a12.926,12.926 0,1 1,25.852 0a12.926,12.926 0,1 1,-25.852 0"
-        android:strokeWidth="1.11160922"
-        android:fillColor="#000000"
-        android:fillType="evenOdd"
-        android:fillAlpha="1"/>
+        android:pathData="M 35,38 C 42,37 66,37 73,38 C 80,39 84,43 83.5,50 C 83,57 82,66 79,69 C 76.5,71.5 72,71 69,67 C 65,62 61,58 54,58 C 47,58 43,62 39,67 C 36,71 31.5,71.5 29,69 C 26,66 25,57 24.5,50 C 24,43 28,39 35,38 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="54"
+                android:startY="36"
+                android:endX="54"
+                android:endY="72"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#4DFFFFFF" />
+                <item android:offset="0.5" android:color="#1AFFFFFF" />
+                <item android:offset="1.0" android:color="#0D00E5FF" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Bold Lucide Specular Contour with Round Caps and Joins -->
     <path
-        android:pathData="M76.47,57.065m-12.926,0a12.926,12.926 0,1 1,25.852 0a12.926,12.926 0,1 1,-25.852 0"
-        android:fillColor="#000000"
-        android:fillAlpha="1"
-        android:fillType="evenOdd"/>
+        android:pathData="M 35,38 C 42,37 66,37 73,38 C 80,39 84,43 83.5,50 C 83,57 82,66 79,69 C 76.5,71.5 72,71 69,67 C 65,62 61,58 54,58 C 47,58 43,62 39,67 C 36,71 31.5,71.5 29,69 C 26,66 25,57 24.5,50 C 24,43 28,39 35,38 Z"
+        android:strokeWidth="4.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:startX="54"
+                android:startY="36"
+                android:endX="54"
+                android:endY="72"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FFFFFFFF" />
+                <item android:offset="0.4" android:color="#E6E8F0" />
+                <item android:offset="0.8" android:color="#8000E5FF" />
+                <item android:offset="1.0" android:color="#3300E5FF" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Top Left Shoulder Bumper -->
     <path
-        android:pathData="m74.169,52.749c0,-1.267 1.024,-2.298 2.295,-2.298 1.27,0 2.293,1.031 2.293,2.298 0,1.269 -1.022,2.299 -2.293,2.299C75.193,55.047 74.169,54.018 74.169,52.749Z"
-        android:strokeWidth="0.66750008"
-        android:fillColor="#ffffff"
-        android:strokeColor="#00000000"
-        android:fillAlpha="1"
-        android:fillType="evenOdd"/>
+        android:pathData="M 31,33 C 34,31.5 39,31.5 42,32.5"
+        android:strokeColor="#00E5FF"
+        android:strokeWidth="3.6"
+        android:strokeLineCap="round" />
+
+    <!-- Top Right Shoulder Bumper -->
     <path
-        android:pathData="m74.169,60.613c0,-1.267 1.024,-2.298 2.295,-2.298 1.27,0 2.293,1.031 2.293,2.298 0,1.269 -1.022,2.299 -2.293,2.299 -1.271,-0.001 -2.295,-1.03 -2.295,-2.299z"
-        android:strokeWidth="0.66750008"
-        android:fillColor="#ffffff"
-        android:strokeColor="#00000000"
-        android:fillAlpha="1"
-        android:fillType="evenOdd"/>
+        android:pathData="M 66,32.5 C 69,31.5 74,31.5 77,33"
+        android:strokeColor="#A855F7"
+        android:strokeWidth="3.6"
+        android:strokeLineCap="round" />
+
+    <!-- Bold Lucide D-Pad (Horizontal) -->
     <path
-        android:pathData="m78.185,56.748c0,-1.267 1.024,-2.298 2.295,-2.298 1.27,0 2.293,1.031 2.293,2.298 0,1.269 -1.022,2.299 -2.293,2.299 -1.271,-0.001 -2.295,-1.03 -2.295,-2.299z"
-        android:strokeWidth="0.66750008"
-        android:fillColor="#ffffff"
-        android:strokeColor="#00000000"
-        android:fillAlpha="1"
-        android:fillType="evenOdd"/>
+        android:pathData="M 33.5,53.5 L 44.5,53.5"
+        android:strokeColor="#00F5FF"
+        android:strokeWidth="4.6"
+        android:strokeLineCap="round" />
+
+    <!-- Bold Lucide D-Pad (Vertical) -->
     <path
-        android:pathData="m70.154,56.748c0,-1.267 1.024,-2.298 2.295,-2.298 1.27,0 2.293,1.031 2.293,2.298 0,1.269 -1.022,2.299 -2.293,2.299C71.178,59.046 70.154,58.017 70.154,56.748Z"
-        android:strokeWidth="0.66750008"
-        android:fillColor="#ffffff"
-        android:strokeColor="#00000000"
-        android:fillAlpha="1"
-        android:fillType="evenOdd"/>
+        android:pathData="M 39,48 L 39,59"
+        android:strokeColor="#00F5FF"
+        android:strokeWidth="4.6"
+        android:strokeLineCap="round" />
+
+    <!-- Center Pivot Dot on D-Pad -->
     <path
-        android:pathData="m66.69,77.868c0,4.554 -3.692,8.246 -8.246,8.246h-2.506c-4.553,0 -8.246,-3.692 -8.246,-8.246v0c0,-4.554 3.693,-8.246 8.246,-8.246h2.506c4.554,0 8.246,3.692 8.246,8.246z"
-        android:strokeAlpha="0.5"
-        android:strokeWidth="1.11160922"
-        android:fillColor="#ffffff"
-        android:fillType="evenOdd"
-        android:fillAlpha="0.5"/>
+        android:pathData="M 39,53.5 m -1.2,0 a 1.2,1.2 0 1,0 2.4,0 a 1.2,1.2 0 1,0 -2.4,0"
+        android:fillColor="#FFFFFF" />
+
+    <!-- Center Menu Pills -->
     <path
-        android:pathData="m52.039,76.689c-0.794,-0.93 -0.441,-1.691 0.78,-1.691l8.512,0c1.223,0 1.574,0.761 0.78,1.692l-3.594,4.213c-0.794,0.93 -2.092,0.93 -2.886,0z"
-        android:strokeAlpha="0.5"
-        android:fillColor="#000000"
-        android:fillAlpha="0.5"
-        android:fillType="evenOdd"/>
+        android:pathData="M 49,53.5 L 51.5,53.5"
+        android:strokeColor="#B0B8C8"
+        android:strokeWidth="2.8"
+        android:strokeLineCap="round" />
     <path
-        android:pathData="M35.54,51.05l3.999,0l0,11.998l-3.999,0z"
-        android:strokeAlpha="1"
-        android:strokeWidth="0"
-        android:fillColor="#ffffff"
-        android:fillAlpha="1"
-        android:strokeColor="#00000000"/>
+        android:pathData="M 56.5,53.5 L 59,53.5"
+        android:strokeColor="#B0B8C8"
+        android:strokeWidth="2.8"
+        android:strokeLineCap="round" />
+
+    <!-- Precision Action Buttons (iOS 2026 Vibrant Accent Gemstones) -->
+    <!-- Top (North / X) -->
     <path
-        android:pathData="M43.539,55.05l-0,3.999l-11.998,0l-0,-3.999z"
-        android:strokeAlpha="1"
-        android:strokeWidth="0"
-        android:fillColor="#ffffff"
-        android:fillAlpha="1"
-        android:strokeColor="#00000000"/>
-  </group>
+        android:pathData="M 69,48.5 m -2.6,0 a 2.6,2.6 0 1,0 5.2,0 a 2.6,2.6 0 1,0 -5.2,0"
+        android:fillColor="#FF375F" />
+    <!-- Right (East / A) -->
+    <path
+        android:pathData="M 74.5,53.5 m -2.6,0 a 2.6,2.6 0 1,0 5.2,0 a 2.6,2.6 0 1,0 -5.2,0"
+        android:fillColor="#FF9F0A" />
+    <!-- Bottom (South / B) -->
+    <path
+        android:pathData="M 69,58.5 m -2.6,0 a 2.6,2.6 0 1,0 5.2,0 a 2.6,2.6 0 1,0 -5.2,0"
+        android:fillColor="#30D158" />
+    <!-- Left (West / Y) -->
+    <path
+        android:pathData="M 63.5,53.5 m -2.6,0 a 2.6,2.6 0 1,0 5.2,0 a 2.6,2.6 0 1,0 -5.2,0"
+        android:fillColor="#0A84FF" />
+
+    <!-- Glint highlight on buttons -->
+    <path
+        android:pathData="M 68.4,47.8 m -0.8,0 a 0.8,0.8 0 1,0 1.6,0 a 0.8,0.8 0 1,0 -1.6,0"
+        android:fillColor="#80FFFFFF" />
+    <path
+        android:pathData="M 73.9,52.8 m -0.8,0 a 0.8,0.8 0 1,0 1.6,0 a 0.8,0.8 0 1,0 -1.6,0"
+        android:fillColor="#80FFFFFF" />
+    <path
+        android:pathData="M 68.4,57.8 m -0.8,0 a 0.8,0.8 0 1,0 1.6,0 a 0.8,0.8 0 1,0 -1.6,0"
+        android:fillColor="#80FFFFFF" />
+    <path
+        android:pathData="M 62.9,52.8 m -0.8,0 a 0.8,0.8 0 1,0 1.6,0 a 0.8,0.8 0 1,0 -1.6,0"
+        android:fillColor="#80FFFFFF" />
 </vector>

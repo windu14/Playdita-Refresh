@@ -39,12 +39,18 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.swordfish.lemuroid.R
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.Glassmorphism
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LemuroidGameTexts
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LemuroidSmallGameImage
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.rememberLemuroidHaptics
 import com.swordfish.lemuroid.lib.library.db.entity.Game
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,6 +65,7 @@ fun MainGameContextActions(
 ) {
     val modalSheetState = rememberModalBottomSheetState(true)
     val selectedGame = selectedGameState.value
+    val isDark = androidx.compose.material3.MaterialTheme.colorScheme.surface.luminance() < 0.5f
 
     LaunchedEffect(selectedGame) {
         if (selectedGame != null) {
@@ -72,6 +79,10 @@ fun MainGameContextActions(
         ModalBottomSheet(
             sheetState = modalSheetState,
             onDismissRequest = { selectedGameState.value = null },
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
+            containerColor = Glassmorphism.containerColor(isDark, alpha = if (isDark) 0.94f else 0.96f),
+            tonalElevation = 0.dp,
+            scrimColor = Color.Black.copy(alpha = 0.5f),
         ) {
             ContextActionContent(
                 selectedGame = selectedGame,
@@ -190,13 +201,19 @@ private fun ContextActionEntry(
     icon: ImageVector,
     onClick: () -> Unit,
 ) {
+    val haptics = rememberLemuroidHaptics()
+    val isDark = androidx.compose.material3.MaterialTheme.colorScheme.surface.luminance() < 0.5f
+
     Row(
         modifier =
             modifier
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp, vertical = 2.dp)
                 .clip(androidx.compose.foundation.shape.RoundedCornerShape(16.dp))
-                .clickable(onClick = onClick)
+                .clickable {
+                    haptics.click()
+                    onClick()
+                }
                 .height(56.dp)
                 .padding(horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -205,10 +222,14 @@ private fun ContextActionEntry(
             modifier = Modifier.padding(start = 16.dp),
             imageVector = icon,
             contentDescription = label,
+            tint = if (isDark) Color(0xFF00E5FF) else androidx.compose.material3.MaterialTheme.colorScheme.primary,
         )
         Text(
             modifier = Modifier.padding(start = 16.dp),
             text = label,
+            style = androidx.compose.material3.MaterialTheme.typography.bodyLarge.copy(
+                fontWeight = FontWeight.Medium,
+            ),
         )
     }
 }

@@ -18,7 +18,7 @@ include(
     ":app"
 )
 
-if (!file("app").exists() && file("lemuroid-app").exists()) {
+if (file("lemuroid-app").exists() && !file("app/build.gradle.kts").exists()) {
     project(":app").projectDir = file("lemuroid-app")
 }
 

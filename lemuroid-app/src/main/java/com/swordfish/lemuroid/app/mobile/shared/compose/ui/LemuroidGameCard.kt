@@ -1,10 +1,8 @@
 package com.swordfish.lemuroid.app.mobile.shared.compose.ui
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -39,6 +37,11 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.dp
 import com.swordfish.lemuroid.lib.library.db.entity.Game
 
+/**
+ * 2026 iOS-Inspired Glassmorphic Game Card.
+ * Features frosted acrylic container, specular hairline highlights, soft ambient depth,
+ * and responsive glowing active borders.
+ */
 @Composable
 @OptIn(ExperimentalFoundationApi::class)
 fun LemuroidGameCard(
@@ -48,19 +51,15 @@ fun LemuroidGameCard(
     onClick: () -> Unit = { },
     onLongClick: () -> Unit = { },
 ) {
-    val cardShape = RoundedCornerShape(22.dp)
+    val cardShape = Glassmorphism.CardShape
     val haptics = rememberLemuroidHaptics()
     val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
 
-    // 2026 iOS Frosted Glass & Specular highlight
-    val switchCyan = Color(0xFF00E5FF)
-    val topHighlight = if (isDark) Color.White.copy(alpha = 0.28f) else Color.White.copy(alpha = 0.90f)
-    val bottomBorder = if (isDark) Color.White.copy(alpha = 0.05f) else Color.Black.copy(alpha = 0.08f)
-    val unselectedBrush = remember(isDark) { Brush.verticalGradient(listOf(topHighlight, bottomBorder)) }
-    val selectedBrush = remember { Brush.verticalGradient(listOf(switchCyan, switchCyan.copy(alpha = 0.8f))) }
+    val unselectedBrush = Glassmorphism.borderBrush(isDark)
+    val selectedBrush = Glassmorphism.activeBorderBrush(isDark)
 
     val borderWidth by animateDpAsState(
-        targetValue = if (isSelected) 3.5.dp else 1.dp,
+        targetValue = if (isSelected) 2.5.dp else 1.dp,
         animationSpec = spring(stiffness = Spring.StiffnessMedium),
         label = "BorderWidth",
     )
@@ -70,7 +69,7 @@ fun LemuroidGameCard(
         label = "Elevation",
     )
 
-    val containerColor = if (isDark) Color(0xEB181B26) else Color(0xF5FFFFFF)
+    val containerColor = Glassmorphism.containerColor(isDark, alpha = if (isDark) 0.88f else 0.92f)
 
     ElevatedCard(
         modifier = modifier
@@ -78,16 +77,17 @@ fun LemuroidGameCard(
             .then(
                 if (isSelected) {
                     Modifier.shadow(
-                        elevation = 12.dp,
+                        elevation = 14.dp,
                         shape = cardShape,
-                        spotColor = switchCyan.copy(alpha = 0.60f),
-                        ambientColor = switchCyan.copy(alpha = 0.25f),
+                        spotColor = Glassmorphism.NeonCyan.copy(alpha = 0.55f),
+                        ambientColor = Glassmorphism.NeonViolet.copy(alpha = 0.30f),
                     )
                 } else {
                     Modifier.shadow(
-                        elevation = 3.dp,
+                        elevation = cardElevation,
                         shape = cardShape,
-                        spotColor = if (isDark) Color.Black.copy(alpha = 0.45f) else Color.Black.copy(alpha = 0.08f),
+                        spotColor = if (isDark) Color.Black.copy(alpha = 0.50f) else Color.Black.copy(alpha = 0.09f),
+                        ambientColor = if (isDark) Color.Black.copy(alpha = 0.25f) else Color.Black.copy(alpha = 0.04f),
                     )
                 }
             )
@@ -128,24 +128,24 @@ fun LemuroidGameCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(1.0f)
-                    .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
-                    .background(Color(0xFF141518)),
+                    .clip(RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp))
+                    .background(if (isDark) Color(0xFF0F1118) else Color(0xFFE2E6EE)),
             ) {
                 LemuroidGameImage(
                     modifier = Modifier.fillMaxSize(),
                     game = game,
                 )
 
-                // Subtle bottom gradient on the image to blend smoothly into card body
+                // Refractive light sweep over cover art
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(
                             brush = Brush.verticalGradient(
                                 colors = listOf(
+                                    Color.White.copy(alpha = if (isDark) 0.08f else 0.15f),
                                     Color.Transparent,
-                                    Color.Transparent,
-                                    Color.Black.copy(alpha = 0.18f),
+                                    Color.Black.copy(alpha = 0.22f),
                                 ),
                             ),
                         ),
@@ -156,26 +156,41 @@ fun LemuroidGameCard(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .padding(8.dp)
-                            .size(26.dp)
+                            .size(28.dp)
+                            .shadow(4.dp, CircleShape)
                             .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.92f)),
+                            .background(
+                                Brush.linearGradient(
+                                    listOf(
+                                        Color(0xFFFF2D55),
+                                        Color(0xFFFF375F),
+                                    ),
+                                ),
+                            )
+                            .border(1.dp, Color.White.copy(alpha = 0.6f), CircleShape),
                         contentAlignment = Alignment.Center,
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(13.dp),
+                            tint = Color.White,
+                            modifier = Modifier.size(14.dp),
                         )
                     }
                 }
             }
 
-            LemuroidGameTexts(
-                modifier = Modifier.fillMaxWidth(),
-                game = game,
-            )
+            // Game details with frosted acrylic backing
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Glassmorphism.specularOverlayBrush(isDark)),
+            ) {
+                LemuroidGameTexts(
+                    modifier = Modifier.fillMaxWidth(),
+                    game = game,
+                )
+            }
         }
     }
 }
-

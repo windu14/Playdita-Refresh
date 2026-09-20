@@ -14,7 +14,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,6 +40,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -48,10 +48,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-
-import androidx.compose.ui.graphics.luminance
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.Glassmorphism
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.rememberLemuroidHaptics
 
+/**
+ * 2026 iOS-Style Floating Island Navigation Dock.
+ * Built with seamless frosted glass acrylic, multi-stop specular highlight hairline border,
+ * tactile spring animations, and refined typography.
+ */
 @Composable
 fun MainNavigationBar(
     currentRoute: MainRoute?,
@@ -71,61 +75,43 @@ fun MainNavigationBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(horizontal = 22.dp, vertical = 10.dp),
+                .padding(horizontal = 20.dp, vertical = 10.dp),
             contentAlignment = Alignment.Center,
         ) {
-            // Check theme luminance directly from active MaterialTheme
             val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
-            val barShape = RoundedCornerShape(32.dp)
+            val islandShape = Glassmorphism.IslandShape
 
-            // 2026 iOS Frosted Glass container
-            val glassContainerColor = if (isDark) {
-                Color(0xEB141722)
-            } else {
-                Color(0xF2FFFFFF)
-            }
-
-            // Specular highlight hairline border
-            val topHighlight = if (isDark) Color.White.copy(alpha = 0.32f) else Color.White.copy(alpha = 0.95f)
-            val bottomShadow = if (isDark) Color.White.copy(alpha = 0.06f) else Color.Black.copy(alpha = 0.08f)
+            // 2026 iOS Frosted Glass Surface
+            val containerColor = Glassmorphism.islandContainerColor(isDark)
+            val borderBrush = Glassmorphism.borderBrush(isDark)
 
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(66.dp)
+                    .height(68.dp)
                     .shadow(
-                        elevation = 16.dp,
-                        shape = barShape,
-                        spotColor = if (isDark) Color.Black.copy(alpha = 0.65f) else Color.Black.copy(alpha = 0.12f),
-                        ambientColor = if (isDark) Color.Black.copy(alpha = 0.35f) else Color.Black.copy(alpha = 0.06f),
+                        elevation = 18.dp,
+                        shape = islandShape,
+                        spotColor = if (isDark) Color.Black.copy(alpha = 0.70f) else Color.Black.copy(alpha = 0.14f),
+                        ambientColor = if (isDark) Color.Black.copy(alpha = 0.40f) else Color.Black.copy(alpha = 0.08f),
                     ),
-                shape = barShape,
-                color = glassContainerColor,
+                shape = islandShape,
+                color = containerColor,
                 border = BorderStroke(
                     width = 1.dp,
-                    brush = Brush.verticalGradient(
-                        colors = listOf(topHighlight, bottomShadow),
-                    ),
+                    brush = borderBrush,
                 ),
             ) {
-                // Frosted gradient overlay for luminous depth
+                // Frosted refractive gradient overlay for luminous depth
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    (if (isDark) Color.White else Color.White).copy(alpha = if (isDark) 0.07f else 0.20f),
-                                    Color.Transparent,
-                                    (if (isDark) Color.Black else Color.Black).copy(alpha = if (isDark) 0.06f else 0.03f),
-                                ),
-                            ),
-                        ),
+                        .background(Glassmorphism.specularOverlayBrush(isDark)),
                 ) {
                     Row(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(horizontal = 6.dp, vertical = 4.dp),
+                            .padding(horizontal = 8.dp, vertical = 5.dp),
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
@@ -166,7 +152,7 @@ private fun ExpressiveNavTab(
     onClick: () -> Unit,
 ) {
     val scale by animateFloatAsState(
-        targetValue = if (isSelected) 1.05f else 1.0f,
+        targetValue = if (isSelected) 1.04f else 1.0f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessLow,
@@ -176,37 +162,26 @@ private fun ExpressiveNavTab(
 
     val contentColor by animateColorAsState(
         targetValue = when {
-            isSelected && isCenter -> MaterialTheme.colorScheme.onPrimary
-            isSelected -> MaterialTheme.colorScheme.primary
+            isSelected && isCenter -> Color.White
+            isSelected -> if (isDark) Color(0xFF00E5FF) else MaterialTheme.colorScheme.primary
             else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f)
         },
         animationSpec = spring(stiffness = Spring.StiffnessMedium),
         label = "TabContentColor",
     )
 
-    val tabShape = RoundedCornerShape(22.dp)
+    val tabShape = RoundedCornerShape(24.dp)
 
-    // Smooth inset effect for active tab
+    // Smooth glass inset pill for active tab
     val tabModifier = if (isSelected) {
         if (isCenter) {
             Modifier
                 .clip(tabShape)
                 .background(
-                    brush = Brush.verticalGradient(
+                    brush = Brush.horizontalGradient(
                         colors = listOf(
-                            MaterialTheme.colorScheme.primary,
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.88f),
-                        ),
-                    ),
-                )
-        } else {
-            Modifier
-                .clip(tabShape)
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.90f),
-                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.65f),
+                            Color(0xFF00C6FF),
+                            Color(0xFF0072FF),
                         ),
                     ),
                 )
@@ -214,8 +189,29 @@ private fun ExpressiveNavTab(
                     width = 1.dp,
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            (if (isDark) Color.Black else Color.Black).copy(alpha = 0.12f),
-                            (if (isDark) Color.White else Color.White).copy(alpha = 0.15f),
+                            Color.White.copy(alpha = 0.60f),
+                            Color.White.copy(alpha = 0.10f),
+                        ),
+                    ),
+                    shape = tabShape,
+                )
+        } else {
+            Modifier
+                .clip(tabShape)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            (if (isDark) Color(0xFF232A3E) else Color(0xFFE8EEF8)).copy(alpha = 0.92f),
+                            (if (isDark) Color(0xFF1B2032) else Color(0xFFDFE6F2)).copy(alpha = 0.75f),
+                        ),
+                    ),
+                )
+                .border(
+                    width = 1.dp,
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            (if (isDark) Color.White.copy(alpha = 0.25f) else Color.White.copy(alpha = 0.85f)),
+                            (if (isDark) Color.White.copy(alpha = 0.05f) else Color.Black.copy(alpha = 0.06f)),
                         ),
                     ),
                     shape = tabShape,
@@ -234,7 +230,7 @@ private fun ExpressiveNavTab(
                 indication = ripple(color = MaterialTheme.colorScheme.primary),
                 onClick = onClick,
             )
-            .padding(horizontal = if (isSelected) 15.dp else 11.dp, vertical = 6.dp),
+            .padding(horizontal = if (isSelected) 16.dp else 12.dp, vertical = 6.dp),
         contentAlignment = Alignment.Center,
     ) {
         Column(
@@ -263,7 +259,7 @@ private fun ExpressiveNavTab(
                 style = MaterialTheme.typography.labelSmall.copy(
                     fontSize = 11.sp,
                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                    letterSpacing = (-0.1).sp,
+                    letterSpacing = (-0.2).sp,
                 ),
                 color = contentColor,
                 maxLines = 1,
@@ -271,4 +267,3 @@ private fun ExpressiveNavTab(
         }
     }
 }
-
