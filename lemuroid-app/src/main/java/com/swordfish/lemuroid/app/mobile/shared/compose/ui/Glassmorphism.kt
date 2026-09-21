@@ -39,12 +39,16 @@ object Glassmorphism {
     val ChipShape = RoundedCornerShape(16.dp)
     val SmallShape = RoundedCornerShape(12.dp)
 
-    // iOS 2026 Vibrant Neon & Pastel Accents
+    // iOS 2026 Vibrant Neon & Aurora Accents
     val NeonCyan = Color(0xFF00E5FF)
     val NeonViolet = Color(0xFF8B5CF6)
     val ElectricBlue = Color(0xFF0A84FF)
     val SunsetOrange = Color(0xFFFF9F0A)
     val EmeraldGreen = Color(0xFF30D158)
+    val AuroraGlowStart = Color(0xFF00E5FF)
+    val AuroraGlowEnd = Color(0xFFFF3366)
+    val ObsidianSurface = Color(0xFF0F121C)
+    val ObsidianCard = Color(0xFF141824)
 
     @Composable
     fun isDarkSurface(): Boolean {
@@ -55,9 +59,9 @@ object Glassmorphism {
      * Frosted Glass acrylic background color with calibrated opacity for depth.
      */
     @Composable
-    fun containerColor(isDark: Boolean = isDarkSurface(), alpha: Float = if (isDark) 0.84f else 0.88f): Color {
+    fun containerColor(isDark: Boolean = isDarkSurface(), alpha: Float = if (isDark) 0.86f else 0.88f): Color {
         return if (isDark) {
-            Color(0xFF141724).copy(alpha = alpha)
+            Color(0xFF121623).copy(alpha = alpha)
         } else {
             Color(0xFFFCFDFF).copy(alpha = alpha)
         }
@@ -66,21 +70,47 @@ object Glassmorphism {
     @Composable
     fun elevatedContainerColor(isDark: Boolean = isDarkSurface(), alpha: Float = if (isDark) 0.90f else 0.94f): Color {
         return if (isDark) {
-            Color(0xFF1B2032).copy(alpha = alpha)
+            Color(0xFF181D2D).copy(alpha = alpha)
         } else {
             Color(0xFFF4F6FB).copy(alpha = alpha)
         }
     }
 
     /**
-     * Floating Island / Dynamic Dock acrylic color.
+     * Floating Island / Dynamic Dock acrylic color with deep obsidian tint in dark mode.
      */
     @Composable
     fun islandContainerColor(isDark: Boolean = isDarkSurface()): Color {
         return if (isDark) {
-            Color(0xEB131726)
+            Color(0xF00D111A)
         } else {
             Color(0xF4FFFFFF)
+        }
+    }
+
+    /**
+     * 2026 Aurora Ambient Glow Brush for hero banners and dynamic highlight backdrops.
+     */
+    @Composable
+    fun auroraGlowBrush(isDark: Boolean = isDarkSurface()): Brush {
+        return if (isDark) {
+            Brush.linearGradient(
+                colors = listOf(
+                    Color(0xFF00E5FF).copy(alpha = 0.28f),
+                    Color(0xFF8B5CF6).copy(alpha = 0.22f),
+                    Color(0xFFFF3366).copy(alpha = 0.16f),
+                    Color.Transparent,
+                ),
+            )
+        } else {
+            Brush.linearGradient(
+                colors = listOf(
+                    Color(0xFF00B0FF).copy(alpha = 0.20f),
+                    Color(0xFF7C4DFF).copy(alpha = 0.15f),
+                    Color(0xFFFF4081).copy(alpha = 0.10f),
+                    Color.Transparent,
+                ),
+            )
         }
     }
 

@@ -335,5 +335,10 @@
     <string name="home_search_clear">Hapus Pencarian</string>
     <string name="home_indexing_title">Memindai Game</string>
     <string name="home_indexing_desc">Sedang menyinkronkan pustaka game Anda...</string>
+    <string name="home_quick_resume">Lanjutkan Cepat</string>
+    <string name="home_filter_all">Semua</string>
+    <string name="home_hero_jump_in">Mainkan Sekarang</string>
+    <string name="home_no_favorites_filtered">Belum ada game favorit yang ditandai</string>
+    <string name="home_no_recent_filtered">Belum ada game yang baru dimainkan</string>
 
 </resources>

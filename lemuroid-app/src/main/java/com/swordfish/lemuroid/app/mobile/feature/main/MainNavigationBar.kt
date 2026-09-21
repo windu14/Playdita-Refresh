@@ -52,15 +52,16 @@ import com.swordfish.lemuroid.app.mobile.shared.compose.ui.Glassmorphism
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.rememberLemuroidHaptics
 
 /**
- * 2026 iOS-Style Floating Island Navigation Dock.
+ * 2026 Dynamic Floating Island Navigation Dock.
  * Built with seamless frosted glass acrylic, multi-stop specular highlight hairline border,
- * tactile spring animations, and refined typography.
+ * tactile spring animations, refined typography, and compact ergonomic pill support.
  */
 @Composable
 fun MainNavigationBar(
     currentRoute: MainRoute?,
     navController: NavHostController,
     modifier: Modifier = Modifier,
+    isCompact: Boolean = false,
 ) {
     val isVisible = currentRoute?.showBottomNavigation != false
     val haptics = rememberLemuroidHaptics()
@@ -71,11 +72,22 @@ fun MainNavigationBar(
         exit = fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMedium)) + shrinkVertically(),
         modifier = modifier,
     ) {
+        val dockHeight by animateFloatAsState(
+            targetValue = if (isCompact) 56f else 66f,
+            animationSpec = spring(stiffness = Spring.StiffnessMediumLow, dampingRatio = Spring.DampingRatioMediumBouncy),
+            label = "DockHeight",
+        )
+        val horizontalPadding by animateFloatAsState(
+            targetValue = if (isCompact) 28f else 18f,
+            animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+            label = "DockHorizontalPadding",
+        )
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(horizontal = 20.dp, vertical = 10.dp),
+                .padding(horizontal = horizontalPadding.dp, vertical = 8.dp),
             contentAlignment = Alignment.Center,
         ) {
             val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
@@ -88,9 +100,9 @@ fun MainNavigationBar(
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(68.dp)
+                    .height(dockHeight.dp)
                     .shadow(
-                        elevation = 18.dp,
+                        elevation = if (isCompact) 14.dp else 18.dp,
                         shape = islandShape,
                         spotColor = if (isDark) Color.Black.copy(alpha = 0.70f) else Color.Black.copy(alpha = 0.14f),
                         ambientColor = if (isDark) Color.Black.copy(alpha = 0.40f) else Color.Black.copy(alpha = 0.08f),
@@ -111,7 +123,7 @@ fun MainNavigationBar(
                     Row(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(horizontal = 8.dp, vertical = 5.dp),
+                            .padding(horizontal = 6.dp, vertical = 4.dp),
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
@@ -123,6 +135,7 @@ fun MainNavigationBar(
                                 destination = destination,
                                 isSelected = isSelected,
                                 isCenter = isCenter,
+                                isCompact = isCompact,
                                 isDark = isDark,
                                 onClick = {
                                     haptics.click()
@@ -148,6 +161,7 @@ private fun ExpressiveNavTab(
     destination: MainNavigationRoutes,
     isSelected: Boolean,
     isCenter: Boolean,
+    isCompact: Boolean,
     isDark: Boolean,
     onClick: () -> Unit,
 ) {
@@ -239,31 +253,39 @@ private fun ExpressiveNavTab(
         ) {
             val iconVec = if (isSelected) destination.selectedIcon else destination.unselectedIcon
             val iconRes = if (isSelected) destination.selectedDrawableRes else destination.unselectedDrawableRes ?: destination.selectedDrawableRes
+            val iconSize = if (isCompact) {
+                if (isCenter) 22.dp else 20.dp
+            } else {
+                if (isCenter) 23.dp else 21.dp
+            }
+
             if (iconVec != null) {
                 Icon(
                     imageVector = iconVec,
                     contentDescription = stringResource(destination.titleId),
                     tint = contentColor,
-                    modifier = Modifier.size(if (isCenter) 23.dp else 21.dp),
+                    modifier = Modifier.size(iconSize),
                 )
             } else if (iconRes != null) {
                 Icon(
                     painter = painterResource(iconRes),
                     contentDescription = stringResource(destination.titleId),
                     tint = contentColor,
-                    modifier = Modifier.size(if (isCenter) 23.dp else 21.dp),
+                    modifier = Modifier.size(iconSize),
                 )
             }
-            Text(
-                text = stringResource(destination.titleId),
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontSize = 11.sp,
-                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                    letterSpacing = (-0.2).sp,
-                ),
-                color = contentColor,
-                maxLines = 1,
-            )
+            if (!isCompact || isSelected) {
+                Text(
+                    text = stringResource(destination.titleId),
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontSize = if (isCompact) 10.sp else 11.sp,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                        letterSpacing = (-0.2).sp,
+                    ),
+                    color = contentColor,
+                    maxLines = 1,
+                )
+            }
         }
     }
 }

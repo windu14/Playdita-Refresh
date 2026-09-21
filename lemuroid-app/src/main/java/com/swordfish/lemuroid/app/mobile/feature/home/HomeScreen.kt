@@ -9,18 +9,23 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -29,16 +34,23 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.FilterList
 import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material.icons.outlined.SportsEsports
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -47,6 +59,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -58,6 +71,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.graphicsLayer
@@ -65,6 +79,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
@@ -76,6 +91,7 @@ import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ContainedLoadingIndic
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ExperimentalMaterial3ExpressiveApi
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.Glassmorphism
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LemuroidGameCard
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LemuroidGameImage
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ScallopBadge
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.rememberLemuroidHaptics
 import com.swordfish.lemuroid.app.utils.android.ComposableLifecycle
@@ -146,6 +162,7 @@ private fun HomeScreen(
     onSetDirectoryClicked: () -> Unit,
 ) {
     var searchQuery by rememberSaveable { mutableStateOf("") }
+    var selectedFilter by rememberSaveable { mutableStateOf(HomeFilter.ALL) }
 
     val filteredGames = remember(searchQuery, state.allGames) {
         if (searchQuery.isBlank()) {
@@ -155,6 +172,14 @@ private fun HomeScreen(
             state.allGames.filter { game ->
                 game.title.lowercase().contains(q) || game.fileName.lowercase().contains(q)
             }
+        }
+    }
+
+    val displayedAllGames = remember(selectedFilter, state.allGames, state.recentGames) {
+        when (selectedFilter) {
+            HomeFilter.ALL -> state.allGames
+            HomeFilter.FAVORITES -> state.allGames.filter { it.isFavorite }
+            HomeFilter.RECENT -> state.recentGames
         }
     }
 
@@ -177,6 +202,15 @@ private fun HomeScreen(
                 onQueryChange = { searchQuery = it },
                 onClear = { searchQuery = "" },
                 totalGamesCount = state.allGames.size,
+            )
+
+            // 2026 Interactive Filter Pills (Semua, Favorit, Terbaru)
+            HomeFilterPills(
+                selectedFilter = selectedFilter,
+                onFilterSelected = { selectedFilter = it },
+                allCount = state.allGames.size,
+                favoritesCount = state.allGames.count { it.isFavorite },
+                recentCount = state.recentGames.size,
             )
 
             // Material 3 Expressive Loading Indicator (Sinkronisasi / Memindai Game)
@@ -301,10 +335,10 @@ private fun HomeScreen(
                     }
                 }
 
-                // Section 1: Terbaru / Terakhir Dimainkan (Carousel Max 5 Cards)
+                // Section 1: 2026 Immersive Hero Banner (Terbaru / Quick Resume)
                 val recents = remember(state.recentGames) { state.recentGames.take(5) }
                 if (recents.isNotEmpty()) {
-                    HomeRecentCarousel(
+                    HomeHeroBanner(
                         title = stringResource(id = R.string.home_recent_games),
                         games = recents,
                         onGameClicked = onGameClicked,
@@ -312,15 +346,569 @@ private fun HomeScreen(
                     )
                 }
 
-                // Section 2: Full Game (Semua Game) - Precision Grid Layout
-                if (state.allGames.isNotEmpty()) {
+                // Section 2: Game Grid (Filtered or Full Game) - Precision Grid Layout
+                val gridTitle = when (selectedFilter) {
+                    HomeFilter.ALL -> stringResource(id = R.string.home_all_games)
+                    HomeFilter.FAVORITES -> stringResource(id = R.string.favorites)
+                    HomeFilter.RECENT -> stringResource(id = R.string.recent)
+                }
+
+                if (displayedAllGames.isNotEmpty()) {
                     HomeAllGamesGrid(
-                        title = stringResource(id = R.string.home_all_games),
-                        games = state.allGames,
+                        title = gridTitle,
+                        games = displayedAllGames,
                         onGameClicked = onGameClicked,
                         onGameLongClick = onGameLongClick,
                     )
+                } else if (state.allGames.isNotEmpty()) {
+                    // Empty state for current filter
+                    HomeEmptyFilterView(
+                        filter = selectedFilter,
+                        onResetFilter = { selectedFilter = HomeFilter.ALL },
+                    )
                 }
+            }
+        }
+    }
+}
+
+enum class HomeFilter {
+    ALL,
+    FAVORITES,
+    RECENT,
+}
+
+@Composable
+private fun HomeFilterPills(
+    selectedFilter: HomeFilter,
+    onFilterSelected: (HomeFilter) -> Unit,
+    allCount: Int,
+    favoritesCount: Int,
+    recentCount: Int,
+    modifier: Modifier = Modifier,
+) {
+    val haptics = rememberLemuroidHaptics()
+    val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        val filters = listOf(
+            Triple(HomeFilter.ALL, stringResource(id = R.string.home_filter_all), allCount),
+            Triple(HomeFilter.FAVORITES, stringResource(id = R.string.favorites), favoritesCount),
+            Triple(HomeFilter.RECENT, stringResource(id = R.string.recent), recentCount),
+        )
+
+        filters.forEach { (filter, label, count) ->
+            val isSelected = selectedFilter == filter
+            val pillShape = RoundedCornerShape(20.dp)
+
+            val pillBrush = if (isSelected) {
+                if (isDark) {
+                    Brush.horizontalGradient(
+                        listOf(
+                            Glassmorphism.AuroraGlowStart,
+                            Glassmorphism.AuroraGlowEnd,
+                        ),
+                    )
+                } else {
+                    Brush.horizontalGradient(
+                        listOf(
+                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.colorScheme.tertiary,
+                        ),
+                    )
+                }
+            } else {
+                Brush.linearGradient(
+                    listOf(
+                        if (isDark) Color(0xFF1B2030) else Color(0xFFEFF2F8),
+                        if (isDark) Color(0xFF141824) else Color(0xFFE4E9F2),
+                    ),
+                )
+            }
+
+            Surface(
+                modifier = Modifier
+                    .shadow(
+                        elevation = if (isSelected) 6.dp else 1.dp,
+                        shape = pillShape,
+                        spotColor = if (isSelected) {
+                            if (isDark) Color(0xFF00E5FF).copy(alpha = 0.4f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+                        } else {
+                            Color.Transparent
+                        },
+                    )
+                    .border(
+                        width = 1.dp,
+                        brush = if (isSelected) {
+                            Brush.verticalGradient(
+                                listOf(
+                                    Color.White.copy(alpha = 0.5f),
+                                    Color.White.copy(alpha = 0.1f),
+                                ),
+                            )
+                        } else {
+                            Glassmorphism.borderBrush(isDark)
+                        },
+                        shape = pillShape,
+                    )
+                    .clip(pillShape)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = ripple(color = MaterialTheme.colorScheme.primary),
+                        onClick = {
+                            haptics.click()
+                            onFilterSelected(filter)
+                        },
+                    ),
+                shape = pillShape,
+                color = Color.Transparent,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .background(pillBrush)
+                        .padding(horizontal = 14.dp, vertical = 7.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        when (filter) {
+                            HomeFilter.ALL -> Icon(
+                                Icons.Outlined.SportsEsports,
+                                contentDescription = null,
+                                tint = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(15.dp),
+                            )
+                            HomeFilter.FAVORITES -> Icon(
+                                if (isSelected) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                                contentDescription = null,
+                                tint = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(15.dp),
+                            )
+                            HomeFilter.RECENT -> Icon(
+                                Icons.Outlined.History,
+                                contentDescription = null,
+                                tint = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(15.dp),
+                            )
+                        }
+                        Text(
+                            text = label,
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                fontSize = 12.5.sp,
+                            ),
+                            color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface,
+                        )
+                        if (count > 0) {
+                            Surface(
+                                shape = CircleShape,
+                                color = if (isSelected) Color.White.copy(alpha = 0.22f) else MaterialTheme.colorScheme.surfaceVariant,
+                            ) {
+                                Text(
+                                    text = "$count",
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 10.sp,
+                                    ),
+                                    color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 1.dp),
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * 2026 Immersive Hero Banner with 16:9 cinematic card, ambient background blur glow,
+ * Quick Resume chip, and play action.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun HomeHeroBanner(
+    title: String,
+    games: List<Game>,
+    onGameClicked: (Game) -> Unit,
+    onGameLongClick: (Game) -> Unit,
+) {
+    if (games.isEmpty()) return
+
+    val pagerState = rememberPagerState(pageCount = { games.size })
+    val haptics = rememberLemuroidHaptics()
+    val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+
+    androidx.compose.runtime.LaunchedEffect(pagerState.currentPage) {
+        haptics.tick()
+    }
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
+        // Section Header
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Surface(
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primaryContainer,
+                modifier = Modifier.size(36.dp),
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = Icons.Outlined.History,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Black,
+                    fontSize = 19.sp,
+                    letterSpacing = (-0.2).sp,
+                ),
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            Surface(
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.surfaceVariant,
+            ) {
+                Text(
+                    text = "${games.size}",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                    ),
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                )
+            }
+        }
+
+        // 16:9 Cinematic Hero Carousel with ambient glow & Quick Resume chip
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(230.dp),
+            contentPadding = PaddingValues(horizontal = 24.dp),
+            pageSpacing = 16.dp,
+        ) { page ->
+            val game = games[page]
+            val pageOffset = ((pagerState.currentPage - page) + pagerState.currentPageOffsetFraction)
+            val absOffset = pageOffset.absoluteValue.coerceIn(0f, 2.0f)
+            val isCurrent = pagerState.currentPage == page
+
+            val scale = (1.0f - (absOffset * 0.06f)).coerceIn(0.92f, 1.0f)
+            val alpha = (1.0f - (absOffset * 0.35f)).coerceIn(0.65f, 1.0f)
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        this.scaleX = scale
+                        this.scaleY = scale
+                        this.alpha = alpha
+                    },
+                contentAlignment = Alignment.Center,
+            ) {
+                HeroGameCard(
+                    game = game,
+                    isDark = isDark,
+                    isCurrent = isCurrent,
+                    onClick = {
+                        haptics.click()
+                        onGameClicked(game)
+                    },
+                    onLongClick = {
+                        haptics.longPress()
+                        onGameLongClick(game)
+                    },
+                )
+            }
+        }
+
+        // Carousel Indicator Dots
+        if (games.size > 1) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 2.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                repeat(minOf(games.size, 6)) { index ->
+                    val isCurrent = pagerState.currentPage == index
+                    val dotWidth = if (isCurrent) 22.dp else 6.dp
+                    Box(
+                        modifier = Modifier
+                            .padding(horizontal = 3.dp)
+                            .height(6.dp)
+                            .width(dotWidth)
+                            .clip(CircleShape)
+                            .background(
+                                if (isCurrent) {
+                                    if (isDark) Color(0xFF00E5FF) else MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f)
+                                },
+                            ),
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun HeroGameCard(
+    game: Game,
+    isDark: Boolean,
+    isCurrent: Boolean,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+) {
+    val heroShape = RoundedCornerShape(26.dp)
+
+    ElevatedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(210.dp)
+            .shadow(
+                elevation = if (isCurrent) 16.dp else 4.dp,
+                shape = heroShape,
+                spotColor = if (isCurrent) {
+                    if (isDark) Color(0xFF00E5FF).copy(alpha = 0.45f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
+                } else {
+                    if (isDark) Color.Black.copy(alpha = 0.5f) else Color.Black.copy(alpha = 0.08f)
+                },
+                ambientColor = if (isDark) Color.Black.copy(alpha = 0.4f) else Color.Black.copy(alpha = 0.04f),
+            )
+            .border(
+                width = if (isCurrent) 1.5.dp else 1.dp,
+                brush = if (isCurrent) {
+                    if (isDark) Glassmorphism.activeBorderBrush(true) else Brush.horizontalGradient(
+                        listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.tertiary)
+                    )
+                } else {
+                    Glassmorphism.borderBrush(isDark)
+                },
+                shape = heroShape,
+            ),
+        shape = heroShape,
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = Glassmorphism.containerColor(isDark, alpha = 0.94f),
+        ),
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(heroShape)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = ripple(color = MaterialTheme.colorScheme.primary),
+                    onClick = onClick,
+                ),
+        ) {
+            // Background Artwork with ambient dark vignette
+            LemuroidGameImage(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        this.alpha = if (isDark) 0.35f else 0.22f
+                    },
+                game = game,
+            )
+
+            // Aurora glow ambient gradient layer
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                if (isDark) Color(0x990A0D14) else Color(0x99F0F4F8),
+                                if (isDark) Color(0xF00A0D14) else Color(0xF0FFFFFF),
+                            ),
+                        ),
+                    ),
+            )
+
+            // Content Overlay
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                // Large Cover Art Preview Thumbnail
+                Surface(
+                    modifier = Modifier
+                        .size(110.dp)
+                        .shadow(8.dp, RoundedCornerShape(18.dp))
+                        .border(1.dp, Color.White.copy(alpha = 0.4f), RoundedCornerShape(18.dp)),
+                    shape = RoundedCornerShape(18.dp),
+                    color = if (isDark) Color(0xFF151926) else Color(0xFFE2E7F0),
+                ) {
+                    LemuroidGameImage(
+                        modifier = Modifier.fillMaxSize(),
+                        game = game,
+                    )
+                }
+
+                // Info Column: Title, Quick Resume Chip, Jump In Action
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    // Quick Resume Chip
+                    Surface(
+                        shape = CircleShape,
+                        color = if (isDark) Color(0xFF00E5FF).copy(alpha = 0.16f) else MaterialTheme.colorScheme.primaryContainer,
+                        border = BorderStroke(
+                            1.dp,
+                            if (isDark) Color(0xFF00E5FF).copy(alpha = 0.35f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
+                        ),
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(5.dp),
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(6.dp)
+                                    .clip(CircleShape)
+                                    .background(if (isDark) Color(0xFF00E5FF) else MaterialTheme.colorScheme.primary),
+                            )
+                            Text(
+                                text = stringResource(id = R.string.home_quick_resume),
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 10.5.sp,
+                                ),
+                                color = if (isDark) Color(0xFF00E5FF) else MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                    }
+
+                    // Game Title
+                    Text(
+                        text = game.title,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 17.sp,
+                            letterSpacing = (-0.2).sp,
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+
+                    // Quick Jump In Action Button
+                    Surface(
+                        shape = RoundedCornerShape(14.dp),
+                        color = if (isDark) Glassmorphism.AuroraGlowStart else MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(14.dp))
+                            .clickable(onClick = onClick),
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.PlayArrow,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(16.dp),
+                            )
+                            Text(
+                                text = stringResource(id = R.string.home_hero_jump_in),
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 12.sp,
+                                ),
+                                color = Color.White,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun HomeEmptyFilterView(
+    filter: HomeFilter,
+    onResetFilter: () -> Unit,
+) {
+    val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 20.dp)
+            .border(1.dp, Glassmorphism.borderBrush(isDark), Glassmorphism.CardShape),
+        shape = Glassmorphism.CardShape,
+        color = Glassmorphism.containerColor(isDark, alpha = 0.85f),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 32.dp, horizontal = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Surface(
+                modifier = Modifier.size(52.dp),
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = if (filter == HomeFilter.FAVORITES) Icons.Outlined.FavoriteBorder else Icons.Outlined.History,
+                        contentDescription = null,
+                        tint = if (isDark) Color(0xFF00E5FF) else MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(26.dp),
+                    )
+                }
+            }
+            Text(
+                text = when (filter) {
+                    HomeFilter.FAVORITES -> stringResource(id = R.string.home_no_favorites_filtered)
+                    else -> stringResource(id = R.string.home_no_recent_filtered)
+                },
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            FilledTonalButton(
+                onClick = onResetFilter,
+                shape = CircleShape,
+            ) {
+                Text(text = stringResource(id = R.string.home_filter_all))
             }
         }
     }
